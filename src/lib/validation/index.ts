@@ -96,7 +96,7 @@ export const SimpleLinkBlockValidation = z.object({
     .string()
     .min(1, { message: "This field is required" })
     .refine(
-      (value) => {
+      (value: string) => {
         const urlRegex = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i;
 
         return urlRegex.test(value);
@@ -117,7 +117,7 @@ export const GitHubUsernameValidation = z.object({
     .string()
     .min(1, { message: "This field is required" })
     .refine(
-      (username) => {
+      (username: string) => {
         const githubUsernameRegex =
           /^[a-zA-Z0-9](?:[a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$/;
         return githubUsernameRegex.test(username);
@@ -133,7 +133,7 @@ export const YoutubeVideoUrlValidation = z.object({
     .string()
     .min(1, { message: "This field is required" })
     .refine(
-      (username) => {
+      (username: string) => {
         const urlRegex =
           /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})$/;
         return urlRegex.test(username);
@@ -149,7 +149,7 @@ export const GithubRepoValidation = z.object({
     .string()
     .min(1, { message: "This field is required" })
     .refine(
-      (url) => {
+      (url: string) => {
         const urlRegex =
           /^https:\/\/github\.com\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+\/?$/;
         return urlRegex.test(url);

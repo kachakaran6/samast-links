@@ -1,27 +1,26 @@
-import { Client, Account, Databases, Storage, Avatars, Locale } from "appwrite";
+import { supabase } from "@/lib/supabase/client";
 
 export const appwriteConfig = {
-  url: import.meta.env.VITE_APPWRITE_URL,
-  projectId: import.meta.env.VITE_APPWRITE_PROJECT_ID,
-  databaseId: import.meta.env.VITE_APPWRITE_DATABASE_ID,
-  storageId: import.meta.env.VITE_APPWRITE_STORAGE_ID,
-  userCollectionId: import.meta.env.VITE_APPWRITE_USER_COLLECTION_ID,
-  linkCollectionId: import.meta.env.VITE_APPWRITE_LINK_COLLECTION_ID,
-  statsCollectionId: import.meta.env.VITE_APPWRITE_STATS_COLLECTION_ID,
-  plansCollectionId: import.meta.env.VITE_APPWRITE_PLAN_COLLECTION_ID,
-  linkBlocksCollectionId: import.meta.env
-    .VITE_APPWRITE_LINK_BLOCKS_COLLECTION_ID,
-  socialMediaCollectionId: import.meta.env
-    .VITE_APPWRITE_SOCIAL_MEDIA_COLLECTION_ID,
+  url: import.meta.env.VITE_SUPABASE_URL || "",
+  projectId: import.meta.env.projectid || "",
+  databaseId: "supabase",
+  storageId: "media",
+  userCollectionId: "users",
+  linkCollectionId: "links",
+  statsCollectionId: "stats",
+  plansCollectionId: "plans",
+  linkBlocksCollectionId: "link_blocks",
+  socialMediaCollectionId: "social_media",
 };
 
-export const client = new Client();
-export const locale = new Locale(client);
-
-client.setEndpoint(appwriteConfig.url);
-client.setProject(appwriteConfig.projectId);
-
-export const account = new Account(client);
-export const databases = new Databases(client);
-export const storage = new Storage(client);
-export const avatars = new Avatars(client);
+export const client = supabase;
+export const account = supabase.auth;
+export const databases = supabase;
+export const storage = supabase.storage;
+export const avatars = {
+  getInitials: (name: string) =>
+    `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}`,
+};
+export const locale = {
+  get: async () => ({ country: "IN", countryName: "India" }),
+};

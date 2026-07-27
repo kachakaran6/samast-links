@@ -7,7 +7,27 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const convertFileToUrl = (file: File) => URL.createObjectURL(file);
+export const convertFileToUrl = (file: File) => {
+  try {
+    return URL.createObjectURL(file);
+  } catch {
+    return "/assets/icons/profile-placeholder.svg";
+  }
+};
+
+export const sanitizeImageUrl = (url: any) => {
+  if (!url || typeof url !== "string") return "/assets/icons/profile-placeholder.svg";
+  if (
+    url.startsWith("http://") ||
+    url.startsWith("https://") ||
+    url.startsWith("blob:") ||
+    url.startsWith("data:") ||
+    url.startsWith("/")
+  ) {
+    return url;
+  }
+  return "/assets/icons/profile-placeholder.svg";
+};
 
 export const showToast = ({
   msg,

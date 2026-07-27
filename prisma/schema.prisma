@@ -1,0 +1,116 @@
+// Prisma Schema for Linkmonks (Supabase PostgreSQL)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                        String   @id @default(uuid())
+  accountId                 String   @unique
+  name                      String
+  email                     String   @unique
+  imageUrl                  String?
+  status                    Boolean  @default(true)
+  emailVerification         Boolean  @default(false)
+  is_pro                    Boolean  @default(false)
+  subscription_license_key  String?
+  createdAt                 DateTime @default(now()) @map("created_at")
+  updatedAt                 DateTime @updatedAt @map("updated_at")
+
+  links                     Link[]
+
+  @@map("users")
+}
+
+model Link {
+  id                    String      @id @default(uuid())
+  userId                String      @map("user_id")
+  slug                  String      @unique
+  title                 String
+  description           String?
+  imageUrl              String?     @map("image_url")
+  imageId               String?     @map("image_id")
+  is_show_social_icons  Boolean     @default(true)
+  is_show_verified_icon Boolean     @default(false)
+  is_show_watermark     Boolean     @default(true)
+  seo_title             String?
+  seo_description       String?
+  seo_keywords          String?
+  ga_tag                String?
+  createdAt             DateTime    @default(now()) @map("created_at")
+
+  user                  User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  socialMedia           SocialMedia?
+  linkBlocks            LinkBlock[]
+  stats                 Stat[]
+
+  @@map("links")
+}
+
+model SocialMedia {
+  id        String   @id @default(uuid())
+  link_id   String   @unique
+  twitter   String?
+  telegram  String?
+  linked_in String?
+  github    String?
+  instagram String?
+  twitch    String?
+  skype     String?
+  tiktok    String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  link      Link     @relation(fields: [link_id], references: [id], onDelete: Cascade)
+
+  @@map("social_media")
+}
+
+model LinkBlock {
+  id           String   @id @default(uuid())
+  link_id      String
+  block_type   String
+  other_values String?  @db.Text
+  link         String?
+  block_order  Int      @default(0)
+  is_private   Boolean  @default(false)
+  is_featured  Boolean  @default(false)
+  total_clicks Int      @default(0)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  linkObj      Link     @relation(fields: [link_id], references: [id], onDelete: Cascade)
+
+  @@map("link_blocks")
+}
+
+model Stat {
+  id                String   @id @default(uuid())
+  link_id           String
+  ip_address        String
+  city              String?
+  region            String?
+  country           String?
+  zip               String?
+  countryCode       String?
+  referrer          String?
+  total_views_by_ip Int      @default(1)
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  link              Link     @relation(fields: [link_id], references: [id], onDelete: Cascade)
+
+  @@map("stats")
+}
+
+model Plan {
+  id          String   @id @default(uuid())
+  name        String
+  price       String?
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("plans")
+}

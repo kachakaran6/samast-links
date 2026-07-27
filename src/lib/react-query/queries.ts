@@ -99,7 +99,7 @@ export const useValidateSlug = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (link: string) => validateLink(link),
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.VALIDATE_LINK, data],
       });
