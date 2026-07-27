@@ -1,5 +1,5 @@
 import { allFeatures } from "@/constants";
-import { getAllPlans } from "@/lib/appwrite/api";
+import { getAllPlans } from "@/lib/supabase/api";
 import { createContext, useContext, useEffect, useState } from "react";
 
 const INITIAL_PLAN = {

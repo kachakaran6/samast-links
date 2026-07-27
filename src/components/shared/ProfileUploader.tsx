@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { FileWithPath, useDropzone } from "react-dropzone";
 
-import { convertFileToUrl } from "@/lib/utils";
+import { convertFileToUrl, sanitizeImageUrl } from "@/lib/utils";
 
 type ProfileUploaderProps = {
   fieldChange: (files: File[]) => void;
@@ -10,7 +10,7 @@ type ProfileUploaderProps = {
 
 const ProfileUploader = ({ fieldChange, mediaUrl }: ProfileUploaderProps) => {
   const [file, setFile] = useState<File[]>([]);
-  const [fileUrl, setFileUrl] = useState<string>(mediaUrl);
+  const [fileUrl, setFileUrl] = useState<string>(sanitizeImageUrl(mediaUrl));
 
   const onDrop = useCallback(
     (acceptedFiles: FileWithPath[]) => {

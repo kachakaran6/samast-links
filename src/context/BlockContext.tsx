@@ -1,4 +1,4 @@
-import { deleteLinkBlockById } from "@/lib/appwrite/api";
+import { deleteLinkBlockById } from "@/lib/supabase/api";
 import { showToast } from "@/lib/utils";
 import { createContext, useContext, useState } from "react";
 

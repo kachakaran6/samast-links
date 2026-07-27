@@ -15,7 +15,7 @@ import {
   getUserLinks,
   validateLink,
   updatePassword,
-} from "@/lib/appwrite/api";
+} from "@/lib/supabase/api";
 import { INewUser, IUpdateUser, INewLink, IUpdateLink } from "@/types";
 
 // ============================================================

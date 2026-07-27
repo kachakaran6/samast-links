@@ -26,7 +26,7 @@ import {
   getSocialMediaByLinkId,
   handleBlockClick,
   saveStatsToDb,
-} from "@/lib/appwrite/api";
+} from "@/lib/supabase/api";
 import {
   Suspense,
   lazy,
@@ -41,6 +41,7 @@ import useIsElementInViewport from "@/hooks/useIsElementInViewport";
 import useSEO from "@/hooks/useSeo";
 import { Skeleton } from "@/components/ui/skeleton";
 import { themeData } from "@/constants/index";
+import { PHASE1_THEMES } from "@/constants/themeConfig";
 import ShareDrawer from "./components/ShareDrawer";
 import useGoogleAnalytics from "@/hooks/GoogleAnalytics";
 const Text = lazy(() => import("./blocks/Text"));
@@ -168,10 +169,21 @@ const DisplayLink = () => {
   }
 
   useEffect(() => {
-    let selectedColor = themeData.filter(
-      (ele: any) => linkData?.theme_key == ele?.name
-    )[0];
-    setLinkTheme(selectedColor);
+    const phase1Theme = PHASE1_THEMES.find(
+      (t) => t.id === linkData?.theme_key || t.name.toLowerCase().replace(/\s+/g, "-") === linkData?.theme_key
+    );
+    const legacyTheme = themeData.find((ele: any) => linkData?.theme_key === ele?.name);
+    const baseTheme: any = phase1Theme || legacyTheme || PHASE1_THEMES[0];
+
+    const computedTheme = {
+      ...baseTheme,
+      mainBg: baseTheme.mainBg,
+      mainColor: baseTheme.mainColor,
+      accentColor: linkData?.custom_accent || baseTheme.accentColor,
+      borderRadius: linkData?.custom_button_shape || baseTheme.borderRadius,
+    };
+
+    setLinkTheme(computedTheme);
     if (isPreviewPage) return;
     if (linkData?.$id && isApiLinkDataLoaded) {
       getAllBlocks();

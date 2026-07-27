@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-
 import { Button } from "../ui/button";
+import { sanitizeImageUrl } from "@/lib/utils";
 
 type UserCardProps = {
   user: any;
@@ -10,7 +10,7 @@ const UserCard = ({ user }: UserCardProps) => {
   return (
     <Link to={`/profile/${user.$id}`} className="user-card">
       <img
-        src={user.imageUrl || "/assets/icons/profile-placeholder.svg"}
+        src={sanitizeImageUrl(user.imageUrl)}
         alt="creator"
         className="rounded-full w-14 h-14"
       />

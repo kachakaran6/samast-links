@@ -1,6 +1,6 @@
 import { CustomInput, Loader } from "@/components/shared";
 import { Button, Form } from "@/components/ui";
-import { resetPasswordRequest } from "@/lib/appwrite/api";
+import { resetPasswordRequest } from "@/lib/supabase/api";
 import { maskEmail, showToast } from "@/lib/utils";
 import { ResetPasswordRequestValidation } from "@/lib/validation";
 import { zodResolver } from "@hookform/resolvers/zod";

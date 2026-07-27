@@ -6,7 +6,7 @@ import { linkBlocks } from "@/constants";
 import { Separator } from "../ui/separator";
 import { Switch } from "../ui/switch";
 import { Label } from "../ui";
-import { updateLinkBlockById } from "@/lib/appwrite/api";
+import { updateLinkBlockById } from "@/lib/supabase/api";
 import { useBlockContext } from "@/context/BlockContext";
 import { showToast } from "@/lib/utils";
 import { IoLockClosed } from "react-icons/io5";

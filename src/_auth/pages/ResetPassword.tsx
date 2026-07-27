@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, Button } from "@/components/ui";
 import { ResetPasswordValidation } from "@/lib/validation";
 import { CustomInput, Loader } from "@/components/shared";
-import { resetPassword } from "@/lib/appwrite/api";
+import { resetPassword } from "@/lib/supabase/api";
 import PasswordField from "@/components/shared/PasswordField";
 
 const ResetPassword = () => {

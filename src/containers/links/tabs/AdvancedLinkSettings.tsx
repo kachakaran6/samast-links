@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { useUserContext } from "@/context/AuthContext";
 import { useLinkContext } from "@/context/LinkContext";
-import { updateLink } from "@/lib/appwrite/api";
+import { updateLink } from "@/lib/supabase/api";
 import { useDeleteLink } from "@/lib/react-query/queries";
 import { showToast } from "@/lib/utils";
 import { googleAnalyticsValidation } from "@/lib/validation";

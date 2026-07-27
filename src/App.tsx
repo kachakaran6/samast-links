@@ -30,6 +30,9 @@ const Subscription = lazy(
 const RequestResetPassword = lazy(
   () => import("./_auth/pages/RequestResetPassword")
 );
+const Privacy = lazy(() => import("./containers/legal/Privacy"));
+const Terms = lazy(() => import("./containers/legal/Terms"));
+const Refunds = lazy(() => import("./containers/legal/Refunds"));
 
 const App = () => {
   if (!appConfig.isLocal) {
@@ -77,6 +80,9 @@ const App = () => {
               </AllPlanProvider>
             }
           />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/refunds" element={<Refunds />} />
           <Route path="/:slug" element={<DisplayLink />} />
           <Route
             path="/verify-account"

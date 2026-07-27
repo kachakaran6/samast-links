@@ -1,11 +1,62 @@
 import * as z from "zod";
 
+export const PROHIBITED_HANDLES = [
+  "admin",
+  "root",
+  "app",
+  "settings",
+  "api",
+  "auth",
+  "linkmonks",
+  "linmonk",
+  "help",
+  "support",
+  "terms",
+  "privacy",
+  "refunds",
+  "pricing",
+  "features",
+  "dashboard",
+  "login",
+  "signup",
+  "signin",
+  "register",
+  "null",
+  "undefined",
+  "link",
+  "user",
+  "status",
+  "billing",
+  "account",
+];
+
+const isValidHandleFormat = (value: string) => {
+  const regex = /^[a-z0-9_-]+$/;
+  return regex.test(value.toLowerCase());
+};
+
+export const HandleValidation = z.object({
+  handle: z
+    .string()
+    .min(3, { message: "Handle must be at least 3 characters." })
+    .max(30, { message: "Handle must be at most 30 characters." })
+    .refine(isValidHandleFormat, {
+      message: "Only lowercase letters, numbers, hyphens, and underscores allowed.",
+    })
+    .refine(
+      (value) => !PROHIBITED_HANDLES.includes(value.toLowerCase().trim()),
+      {
+        message: "This handle is reserved and unavailable.",
+      }
+    ),
+});
+
 const noSpacesOrSpecialChars = (value: any) => {
   // Regular expression to check for spaces or special characters
-  // const regex = /^[a-zA-Z0-9]+$/;
-  const regex = /^[a-zA-Z0-9-]+$/;
+  const regex = /^[a-zA-Z0-9_-]+$/;
   return regex.test(value);
 };
+
 
 // ============================================================
 // USER

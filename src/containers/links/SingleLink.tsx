@@ -4,8 +4,8 @@ import { Button } from "@/components/ui";
 import { useLinkContext } from "@/context/LinkContext";
 import { Suspense, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getLinkBlocksByLinkId } from "@/lib/appwrite/api";
-import { manageLinkBlock } from "@/lib/appwrite/api";
+import { getLinkBlocksByLinkId } from "@/lib/supabase/api";
+import { manageLinkBlock } from "@/lib/supabase/api";
 import { Customize, ManageLink, Preview, Stats } from "..";
 import { useBlockContext } from "@/context/BlockContext";
 import { showToast } from "@/lib/utils";
@@ -16,7 +16,6 @@ import AdvancedLinkSettings from "./tabs/AdvancedLinkSettings";
 import SeoForm from "./tabs/SeoForm";
 import { useUserContext } from "@/context/AuthContext";
 import UpgradeToPro from "@/components/shared/UpgradeToPro";
-import { appConfig } from "@/lib/config/appConfig";
 
 const SingleLink = () => {
   const { links, linksLoading, updateLinkById } = useLinkContext();
@@ -142,26 +141,26 @@ const SingleLink = () => {
     <>
       <div className="flex max-md:flex-col md:max-w-[calc(100%-320px)]">
         <div className=" w-full max-w-[100vw] h-full">
-          <div className="flex bg-dark-1 z-[2] sticky top-[56px] py-2 left-0 right-0 flex-col w-full gap-3 h-max px-1">
-            <div className="flex items-center justify-between md:justify-center gap-5 flex-wrap">
+          <div className="flex bg-dark-2/80 backdrop-blur-md z-[2] sticky top-[56px] py-3 left-0 right-0 flex-col w-full gap-3 h-max px-4 border-b border-dark-4">
+            <div className="flex items-center justify-between gap-4">
               {links?.length > 1 ? (
-                <div className="w-[60%]">
+                <div className="w-[60%] md:w-[40%]">
                   <CustomSelect
                     onSelect={handleSelect}
-                    placeholder={"Select any Link"}
+                    placeholder={"Select Linkmonks Page"}
                     items={links}
                     bind_label={"slug"}
                     bind_value={"slug"}
                     value={selectedLink?.slug}></CustomSelect>
                 </div>
               ) : (
-                <div className="w-[60%] truncate py-2">
-                  {window.location.origin + "/" + selectedLink?.slug}
+                <div className="flex items-center gap-2 font-mono text-xs text-gray-300 bg-dark-3 px-3 py-1.5 rounded-lg border border-gray-800 truncate">
+                  <span className="text-gray-500">URL:</span>
+                  <span className="truncate">{window.location.origin + "/" + (selectedLink?.slug || "")}</span>
                 </div>
               )}
               <Button
-                className="whitespace-nowrap transition-all !h-9 flex !gap-3 items-center shad-button_primary  !text-xs text-gray-300 !px-4 min-w-[100px] max-sm:w-[30%] max-sm:min-w-[30%]"
-                variant={"ghost"}
+                className="whitespace-nowrap transition-all h-9 px-5 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl text-xs shadow-sm"
                 onClick={() => {
                   handleBtnClicked();
                 }}
@@ -169,11 +168,11 @@ const SingleLink = () => {
                 form="hook-form"
                 disabled={isBtnLoading}>
                 {isBtnLoading ? (
-                  <Loader height={20} width={20} />
+                  <Loader height={18} width={18} />
                 ) : currentTab == "stats" ? (
-                  "Refresh"
+                  "Refresh Data"
                 ) : (
-                  "Update"
+                  "Save Changes"
                 )}
               </Button>
             </div>
@@ -184,46 +183,40 @@ const SingleLink = () => {
             onValueChange={(data: any) => {
               setCurrentTab(data);
             }}>
-            <TabsList className="w-full flex items-center sticky top-[112px] z-[10] justify-start h-max bg-dark-2 scrollbar-none overflow-x-auto">
+            <TabsList className="w-full flex items-center sticky top-[112px] z-[10] justify-start h-max bg-dark-2 border-b border-dark-4 scrollbar-none overflow-x-auto p-1">
               <TabsTrigger
                 value="blocks"
-                className="flex-grow py-3 text-gray-400 hover:text-gray-200 hover:border-b-gray-400">
+                className="flex-grow py-2.5 px-4 text-xs font-medium text-gray-400 hover:text-white rounded-lg data-[state=active]:bg-dark-3 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-primary-500 transition-all">
                 All Blocks
               </TabsTrigger>
-              {appConfig.isLocal ? (
-                <>
-                  <TabsTrigger
-                    value="customize"
-                    className="flex-grow py-3 text-gray-400 hover:text-gray-200 hover:border-b-gray-400">
-                    Customize
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="stats"
-                    className="flex-grow py-3 text-gray-400 hover:text-gray-200 hover:border-b-gray-400">
-                    Stats
-                  </TabsTrigger>
-                </>
-              ) : (
-                <></>
-              )}
+              <TabsTrigger
+                value="customize"
+                className="flex-grow py-2.5 px-4 text-xs font-medium text-gray-400 hover:text-white rounded-lg data-[state=active]:bg-dark-3 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-primary-500 transition-all">
+                Customize
+              </TabsTrigger>
+              <TabsTrigger
+                value="stats"
+                className="flex-grow py-2.5 px-4 text-xs font-medium text-gray-400 hover:text-white rounded-lg data-[state=active]:bg-dark-3 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-primary-500 transition-all">
+                Stats
+              </TabsTrigger>
               <TabsTrigger
                 value="edit-link"
-                className="flex-grow py-3 text-gray-400 hover:text-gray-200 hover:border-b-gray-400">
-                Edit Link
+                className="flex-grow py-2.5 px-4 text-xs font-medium text-gray-400 hover:text-white rounded-lg data-[state=active]:bg-dark-3 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-primary-500 transition-all">
+                Edit Page
               </TabsTrigger>
               <TabsTrigger
                 value="social-media"
-                className="flex-grow py-3 text-gray-400 hover:text-gray-200 hover:border-b-gray-400">
-                Social Media
+                className="flex-grow py-2.5 px-4 text-xs font-medium text-gray-400 hover:text-white rounded-lg data-[state=active]:bg-dark-3 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-primary-500 transition-all">
+                Social Links
               </TabsTrigger>
               <TabsTrigger
                 value="seo"
-                className="flex-grow py-3 text-gray-400 hover:text-gray-200 hover:border-b-gray-400">
-                Advanced Seo
+                className="flex-grow py-2.5 px-4 text-xs font-medium text-gray-400 hover:text-white rounded-lg data-[state=active]:bg-dark-3 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-primary-500 transition-all">
+                Advanced SEO
               </TabsTrigger>
               <TabsTrigger
                 value="advanced"
-                className="flex-grow py-3 text-gray-400 hover:text-gray-200 hover:border-b-gray-400">
+                className="flex-grow py-2.5 px-4 text-xs font-medium text-gray-400 hover:text-white rounded-lg data-[state=active]:bg-dark-3 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-primary-500 transition-all">
                 Advanced
               </TabsTrigger>
             </TabsList>
@@ -256,7 +249,10 @@ const SingleLink = () => {
                   />
                 </TabsContent>
                 <TabsContent value="customize" className="w-full">
-                  <Customize />
+                  <Customize
+                    selectedLink={selectedLink}
+                    setBtnLoading={setIsBtnLoading}
+                  />
                 </TabsContent>
                 <TabsContent value="stats" className="w-full">
                   {currentPlan != "free" ? (

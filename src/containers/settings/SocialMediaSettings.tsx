@@ -5,7 +5,7 @@ import { useLinkContext } from "@/context/LinkContext";
 import {
   getSocialMediaByLinkId,
   updateSocialMediaLinks,
-} from "@/lib/appwrite/api";
+} from "@/lib/supabase/api";
 import { showToast } from "@/lib/utils";
 import { SocialMediaValidation } from "@/lib/validation";
 import { zodResolver } from "@hookform/resolvers/zod";

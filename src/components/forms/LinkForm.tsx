@@ -11,7 +11,7 @@ import {
   FormMessage,
   Button,
 } from "@/components/ui";
-import { LinkValidation } from "@/lib/validation";
+import { LinkValidation, PROHIBITED_HANDLES } from "@/lib/validation";
 import { CustomInput, FileUploader, Loader } from "@/components/shared";
 import { useEffect, useState } from "react";
 import {
@@ -91,12 +91,15 @@ const LinkForm = ({ link_id, action, setUpdateLoading }: LinkFormProps) => {
     }
 
     if (value?.slug != link?.slug || action == "Create") {
+      if (PROHIBITED_HANDLES.includes(value?.slug?.toLowerCase().trim())) {
+        setIsSlugAvailable(false);
+        return;
+      }
       const isValidSlug: any = await validateSlug(value.slug);
       if (isValidSlug?.length > 0) {
         setIsSlugAvailable(false);
         return;
       } else {
-        console.log(constantSlugs.some((ele: any) => ele == value?.slug));
         if (constantSlugs.some((ele: any) => ele == value?.slug)) {
           setIsSlugAvailable(false);
           return;
@@ -195,21 +198,20 @@ const LinkForm = ({ link_id, action, setUpdateLoading }: LinkFormProps) => {
                 )}
               />
               <div className="relative flex items-center w-full">
-                <div className="absolute text-sm top-[46px] left-2 text-gray-300">
-                  https://linkmonks.vercel.app/
+                <div className="absolute text-xs md:text-sm top-[46px] left-3 text-gray-400 font-mono pointer-events-none truncate max-w-[50%]">
+                  {typeof window !== "undefined" ? window.location.origin.replace(/^https?:\/\//, "") + "/" : "links.samast.pro/"}
                 </div>
                 <CustomInput
-                  placeholder="yourname"
-                  label="Your Unique Link"
-                  className="!w-full pl-[172px]"
+                  placeholder="yourhandle"
+                  label="Your Unique Public Handle"
+                  className="!w-full pl-[160px] md:pl-[200px]"
                   control={form.control}
                   name="slug"
                   onChange={(val: any) => {
                     handleChange(val);
                   }}
-                  // label="Enter Link slug"
                   errorText={
-                    !isSlugAvailable ? "This link is already taken" : ""
+                    !isSlugAvailable ? "This handle is reserved or already taken" : ""
                   }
                 />
               </div>

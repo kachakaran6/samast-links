@@ -20,21 +20,20 @@ export default {
     },
     extend: {
       colors: {
-        // 'primary-500': '#877EFF',
-        primary: "#1ca9c9",
-        "primary-500": "#1ca9c9",
-        "primary-600": "#5D5FEF",
-        "secondary-500": "#FFB620",
-        "off-white": "#D0DFFF",
-        red: "#FF5A5A",
-        "dark-1": "#101214",
-        "dark-2": "#161A1D",
-        "dark-3": "#1D2125",
-        "dark-4": "#22272B",
-        "light-1": "#FFFFFF",
-        "light-2": "#EFEFEF",
-        "light-3": "#7878A3",
-        "light-4": "#5C5C7B",
+        primary: "#9E2A2B",
+        "primary-500": "#9E2A2B",
+        "primary-600": "#801F20",
+        "secondary-500": "#D97706",
+        "off-white": "#F4F4F5",
+        red: "#EF4444",
+        "dark-1": "#09090B",
+        "dark-2": "#121215",
+        "dark-3": "#18181B",
+        "dark-4": "#27272A",
+        "light-1": "#F4F4F5",
+        "light-2": "#E4E4E7",
+        "light-3": "#A1A1AA",
+        "light-4": "#71717A",
       },
       screens: {
         xs: "480px",
@@ -45,7 +44,9 @@ export default {
         465: "465px",
       },
       fontFamily: {
-        inter: ["Inter", "sans-serif"],
+        sans: ["Plus Jakarta Sans", "Inter", "sans-serif"],
+        serif: ["Playfair Display", "Georgia", "serif"],
+        inter: ["Plus Jakarta Sans", "sans-serif"],
       },
       keyframes: {
         "accordion-down": {
@@ -63,6 +64,5 @@ export default {
       },
     },
   },
-  // plugins: [require("tailwindcss-animate")],
   plugins: [animate],
 };

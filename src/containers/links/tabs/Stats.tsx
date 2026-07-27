@@ -6,7 +6,7 @@ import {
   statsActionTypes,
   statsReducer,
 } from "@/hooks/reducers/statsReducer";
-import { getStatsByLinkId } from "@/lib/appwrite/api";
+import { getStatsByLinkId } from "@/lib/supabase/api";
 import {
   filterElementsByDay,
   filterElementsByDays,

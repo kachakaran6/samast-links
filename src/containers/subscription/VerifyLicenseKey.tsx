@@ -1,7 +1,7 @@
 import { CustomInput, Loader } from "@/components/shared";
 import { Button, Form } from "@/components/ui";
 import { useUserContext } from "@/context/AuthContext";
-import { upgradeToPro } from "@/lib/appwrite/api";
+import { upgradeToPro } from "@/lib/supabase/api";
 import { showToast } from "@/lib/utils";
 import { LicenseKeyValidation } from "@/lib/validation";
 import { zodResolver } from "@hookform/resolvers/zod";

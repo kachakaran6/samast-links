@@ -1,7 +1,7 @@
 import { Loader } from "@/components/shared";
 import { Button } from "@/components/ui";
 import { useUserContext } from "@/context/AuthContext";
-import { updateVerification, verifyEmail } from "@/lib/appwrite/api";
+import { updateVerification, verifyEmail } from "@/lib/supabase/api";
 import { maskEmail, showToast } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
