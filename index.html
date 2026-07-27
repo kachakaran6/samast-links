@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <script>
+      var head = document.head;
+      var ogUrl = document.createElement("meta");
+      ogUrl.setAttribute("property", "og:url");
+      ogUrl.setAttribute("content", window.location.href);
+      head.appendChild(ogUrl);
+
+      var ogType = document.createElement("meta");
+      ogType.setAttribute("property", "og:type");
+      ogType.setAttribute("content", "website");
+      head.appendChild(ogType);
+    </script>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet" />
+    <title>Linkmonks</title>
+    <meta
+      property="og:description"
+      content="Linkmonks is a free link in bio tool for influencers" />
+    <meta property="og:title" content="Linkmonks" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main"></script>
+  </body>
+</html>
