@@ -50,8 +50,35 @@ const SimpleLink = lazy(() => import("./blocks/SimpleLink"));
 const GitHubContributions = lazy(() => import("./blocks/GitHubContributions"));
 const GitHubProfileCard = lazy(() => import("./blocks/GitHubProfileCard"));
 
+const RESERVED_SLUGS = [
+  "app",
+  "overview",
+  "links",
+  "link",
+  "appearance",
+  "analytics",
+  "settings",
+  "subscription",
+  "sign-in",
+  "sign-up",
+  "reset-password",
+  "privacy",
+  "terms",
+  "refunds",
+  "api",
+  "_next",
+  "favicon.ico",
+];
+
 const DisplayLink = () => {
   const { slug } = useParams();
+
+  // Guard against rendering reserved application route names as public user profiles
+  if (slug && RESERVED_SLUGS.includes(slug.toLowerCase())) {
+    window.location.href = `/${slug.toLowerCase()}`;
+    return null;
+  }
+
   const [linkData, setLinkData] = useState<any>(null);
   const [linkLoading, setLinkLoading] = useState<any>(true);
   const [shareDrawerOpened, setShareDrawerOpened] = useState<any>(false);

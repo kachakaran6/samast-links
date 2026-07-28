@@ -12,46 +12,32 @@ export type AccentPreset = {
 
 export const ACCENT_PRESETS: AccentPreset[] = [
   {
-    id: "terracotta",
-    name: "Terracotta Red",
-    color: "#D17A67",
-    hover: "#E39782",
-    soft: "rgba(209, 122, 103, 0.18)",
+    id: "oxide",
+    name: "Oxide (Default)",
+    color: "#B85C4D",
+    hover: "#984638",
+    soft: "rgba(184, 92, 77, 0.18)",
   },
   {
-    id: "emerald",
-    name: "Emerald Mint",
-    color: "#10B981",
-    hover: "#34D399",
-    soft: "rgba(16, 185, 129, 0.18)",
+    id: "moss",
+    name: "Moss",
+    color: "#587D5B",
+    hover: "#3F6443",
+    soft: "rgba(88, 125, 91, 0.18)",
   },
   {
-    id: "violet",
-    name: "Royal Violet",
-    color: "#8B5CF6",
-    hover: "#A78BFA",
-    soft: "rgba(139, 92, 246, 0.18)",
+    id: "ochre",
+    name: "Ochre",
+    color: "#A97122",
+    hover: "#895815",
+    soft: "rgba(169, 113, 34, 0.18)",
   },
   {
-    id: "cyan",
-    name: "Cyber Cyan",
-    color: "#06B6D4",
-    hover: "#38BDF8",
-    soft: "rgba(6, 182, 212, 0.18)",
-  },
-  {
-    id: "amber",
-    name: "Electric Amber",
-    color: "#F59E0B",
-    hover: "#FBBF24",
-    soft: "rgba(245, 158, 11, 0.18)",
-  },
-  {
-    id: "rose",
-    name: "Rose Pink",
-    color: "#EC4899",
-    hover: "#F472B6",
-    soft: "rgba(236, 72, 153, 0.18)",
+    id: "ink",
+    name: "Ink",
+    color: "#3E5145",
+    hover: "#2C3B31",
+    soft: "rgba(62, 81, 69, 0.18)",
   },
 ];
 
@@ -99,17 +85,17 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     root.classList.add(theme);
 
     if (theme === "light") {
-      root.style.setProperty("--canvas-bg", "#F8F9FA");
-      root.style.setProperty("--surface-bg", "#FFFFFF");
-      root.style.setProperty("--surface-muted", "#F1F5F9");
-      root.style.setProperty("--border-color", "#E2E8F0");
-      root.style.setProperty("--text-main", "#0F172A");
-      root.style.setProperty("--text-muted", "#64748B");
+      root.style.setProperty("--canvas-bg", "#F7F4EE");
+      root.style.setProperty("--surface-bg", "#FFFCF6");
+      root.style.setProperty("--surface-muted", "#EEEAE1");
+      root.style.setProperty("--border-color", "#DCD7CE");
+      root.style.setProperty("--text-main", "#242824");
+      root.style.setProperty("--text-muted", "#626861");
     } else {
       root.style.setProperty("--canvas-bg", "#181A18");
       root.style.setProperty("--surface-bg", "#222522");
       root.style.setProperty("--surface-muted", "#2C302C");
-      root.style.setProperty("--border-color", "#3B403B");
+      root.style.setProperty("--border-color", "#3A3E3A");
       root.style.setProperty("--text-main", "#F4F0E8");
       root.style.setProperty("--text-muted", "#B5BAB2");
     }
