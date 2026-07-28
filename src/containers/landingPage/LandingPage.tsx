@@ -21,7 +21,7 @@ const LandingPage = () => {
     },
     {
       q: "What format will my public URL take?",
-      a: "Your public Linkmonks page URL will take the form of links.samast.pro/yourhandle or your custom handle format.",
+      a: `Your public Linkmonks page URL will take the form of ${typeof window !== "undefined" ? window.location.host : "links.samast.pro"}/yourhandle or your custom handle format.`,
     },
     {
       q: "Is there a Free tier?",

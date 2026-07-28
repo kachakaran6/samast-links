@@ -8,6 +8,7 @@ import {
   AlertTriangle,
   Key,
 } from "lucide-react";
+import { getDynamicHost } from "@/lib/utils";
 import toast from "react-hot-toast";
 
 const SettingsWorkspace = () => {
@@ -15,6 +16,9 @@ const SettingsWorkspace = () => {
 
   // Page Identity State
   const [handle, setHandle] = useState(user?.username || "karan");
+  const currentHostPrefix = typeof window !== "undefined" && window.location?.host
+    ? `${window.location.host}/`
+    : "links.samast.pro/";
 
   // SEO State
   const [seoTitle, setSeoTitle] = useState(`${user?.name || "Karan"} — Linkmonks Page`);
@@ -74,7 +78,7 @@ const SettingsWorkspace = () => {
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-bold text-[#B5BAB2]">Public Handle URL</label>
               <div className="flex items-center bg-[#181A18] border border-[#3B403B] rounded-xl overflow-hidden px-3.5 py-2.5 text-xs text-white">
-                <span className="text-[#B5BAB2] font-mono select-none">links.samast.pro/</span>
+                <span className="text-[#B5BAB2] font-mono select-none">{currentHostPrefix}</span>
                 <input
                   type="text"
                   value={handle}
@@ -134,7 +138,7 @@ const SettingsWorkspace = () => {
               <div className="border border-[#3B403B] rounded-xl p-3 bg-[#222522] flex flex-col gap-1">
                 <span className="text-xs font-bold text-white">{seoTitle}</span>
                 <span className="text-[11px] text-[#B5BAB2] line-clamp-2">{seoDescription}</span>
-                <span className="text-[10px] font-mono text-[#D17A67]">links.samast.pro/{handle}</span>
+                <span className="text-[10px] font-mono text-[#D17A67]">{getDynamicHost(handle)}</span>
               </div>
             </div>
           </div>

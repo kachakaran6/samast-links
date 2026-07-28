@@ -159,3 +159,17 @@ export const convertDateToIST = (utcDateTimeString: string) => {
 
   return istTimeString;
 };
+
+export function getDynamicHost(handle: string = "handle"): string {
+  if (typeof window !== "undefined" && window.location?.host) {
+    return `${window.location.host}/${handle}`;
+  }
+  return `links.samast.pro/${handle}`;
+}
+
+export function getDynamicPublicUrl(handle: string = "handle"): string {
+  if (typeof window !== "undefined" && window.location?.origin) {
+    return `${window.location.origin}/${handle}`;
+  }
+  return `https://links.samast.pro/${handle}`;
+}

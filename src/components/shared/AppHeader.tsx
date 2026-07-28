@@ -4,6 +4,8 @@ import { useUserContext } from "@/context/AuthContext";
 import { ExternalLink, Copy, Check, CheckCircle2, Clock } from "lucide-react";
 import toast from "react-hot-toast";
 
+import { getDynamicHost, getDynamicPublicUrl } from "@/lib/utils";
+
 interface AppHeaderProps {
   title?: string;
   hasUnpublishedChanges?: boolean;
@@ -33,12 +35,10 @@ const AppHeader = ({
     return "Dashboard";
   };
 
-  // Construct public URL
+  // Construct public URL dynamically
   const publicHandle = user?.username || "me";
-  const displayHost = window.location.host.includes("localhost")
-    ? `links.samast.pro/${publicHandle}`
-    : `${window.location.host}/${publicHandle}`;
-  const actualPublicUrl = `${window.location.origin}/${publicHandle}`;
+  const displayHost = getDynamicHost(publicHandle);
+  const actualPublicUrl = getDynamicPublicUrl(publicHandle);
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(actualPublicUrl);

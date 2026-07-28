@@ -14,6 +14,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { getDynamicHost, getDynamicPublicUrl } from "@/lib/utils";
 
 const Overview = () => {
   const { user, currentPlan } = useUserContext();
@@ -23,10 +24,8 @@ const Overview = () => {
   const links = linksData?.documents || [];
   const primaryLink = links[0];
   const publicHandle = user?.username || "handle";
-  const publicUrl = `${window.location.origin}/${publicHandle}`;
-  const displayHost = window.location.host.includes("localhost")
-    ? `links.samast.pro/${publicHandle}`
-    : `${window.location.host}/${publicHandle}`;
+  const publicUrl = getDynamicPublicUrl(publicHandle);
+  const displayHost = getDynamicHost(publicHandle);
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(publicUrl);

@@ -1,6 +1,10 @@
-import { useState, Component, ErrorInfo, ReactNode } from "react";
+import { useState, useEffect, Component, ErrorInfo, ReactNode } from "react";
 import { useUserContext } from "@/context/AuthContext";
 import { useGetLinks, useGetLinkBlocks } from "@/lib/react-query/queries";
+import { useQueryClient } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/lib/react-query/queryKeys";
+import { createLink, manageLinkBlock, deleteLinkBlockById } from "@/lib/supabase/api";
+import { getDynamicPublicUrl } from "@/lib/utils";
 import {
   Plus,
   GripVertical,
@@ -67,11 +71,13 @@ class PreviewErrorBoundary extends Component<
 
 const LinksWorkspace = () => {
   const { user } = useUserContext();
+  const queryClient = useQueryClient();
+
   const { data: linksData, isLoading: isLinksLoading } = useGetLinks(user?.id || "");
   const links = linksData?.documents || [];
   const selectedLink = links[0];
 
-  const { data: blocksData } = useGetLinkBlocks(selectedLink?.$id || "");
+  const { data: blocksData } = useGetLinkBlocks(selectedLink?.$id || selectedLink?.id || "");
   const blocks = blocksData?.documents || [];
 
   // Local state for link management
@@ -82,13 +88,47 @@ const LinksWorkspace = () => {
   const [newUrl, setNewUrl] = useState("");
   const [deviceMode, setDeviceMode] = useState<"mobile" | "desktop">("mobile");
   const [hasUnpublishedChanges, setHasUnpublishedChanges] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  // Sync blocks when loaded
-  if (blocks.length > 0 && items.length === 0) {
-    setItems(blocks);
-  }
+  // Sync items when blocks data changes
+  useEffect(() => {
+    if (blocks && blocks.length > 0) {
+      setItems(blocks);
+    }
+  }, [blocksData]);
 
-  const handleAddLink = () => {
+  const saveLinkBlocks = async (updatedItems: any[]) => {
+    setIsSaving(true);
+    try {
+      let linkId = selectedLink?.$id || selectedLink?.id;
+      if (!linkId) {
+        const linkPayload = {
+          userId: user?.id || `user_${Date.now()}`,
+          title: user?.name || "My Bio Page",
+          slug: user?.username || `user_${Date.now()}`,
+          description: "Welcome to my bio page!",
+          file: [],
+        };
+        const newLink: any = await createLink(linkPayload);
+        linkId = newLink?.$id || newLink?.id;
+      }
+
+      if (linkId) {
+        const managed = await manageLinkBlock(updatedItems, linkId);
+        if (managed && Array.isArray(managed)) {
+          setItems(managed);
+        }
+        queryClient.invalidateQueries([QUERY_KEYS.GET_USER_LINKS]);
+        queryClient.invalidateQueries([QUERY_KEYS.GET_LINK_BLOCKS]);
+      }
+    } catch (err) {
+      console.error("Save link blocks error:", err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleAddLink = async () => {
     if (!newTitle.trim() || !newUrl.trim()) {
       toast.error("Please provide both title and destination URL");
       return;
@@ -97,51 +137,64 @@ const LinksWorkspace = () => {
       $id: `temp-${Date.now()}`,
       title: newTitle.trim(),
       url: newUrl.trim(),
+      link: newUrl.trim(),
+      val: { link: newUrl.trim(), title: newTitle.trim() },
+      block_type: "simple_link",
       is_active: true,
       block_order: items.length + 1,
     };
-    setItems([newBlock, ...items]);
+    const nextItems = [newBlock, ...items];
+    setItems(nextItems);
     setNewTitle("");
     setNewUrl("");
     setIsAddingLink(false);
-    setHasUnpublishedChanges(true);
-    toast.success("Link added to draft!");
+
+    await saveLinkBlocks(nextItems);
+    setHasUnpublishedChanges(false);
+    toast.success("Link saved successfully!");
   };
 
-  const handleToggleVisibility = (id: string) => {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.$id === id ? { ...item, is_active: !item.is_active } : item
-      )
+  const handleToggleVisibility = async (id: string) => {
+    const nextItems = items.map((item) =>
+      (item.$id || item.id) === id ? { ...item, is_active: !item.is_active } : item
     );
+    setItems(nextItems);
     setHasUnpublishedChanges(true);
+    await saveLinkBlocks(nextItems);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this link?")) {
-      setItems((prev) => prev.filter((item) => item.$id !== id));
-      setHasUnpublishedChanges(true);
-      toast.success("Link removed from draft");
+      const nextItems = items.filter((item) => (item.$id || item.id) !== id);
+      setItems(nextItems);
+      if (id && !id.startsWith("temp-")) {
+        await deleteLinkBlockById(id);
+      }
+      await saveLinkBlocks(nextItems);
+      toast.success("Link removed!");
     }
   };
 
-  const handleMove = (index: number, direction: "up" | "down") => {
+  const handleMove = async (index: number, direction: "up" | "down") => {
     const targetIndex = direction === "up" ? index - 1 : index + 1;
     if (targetIndex < 0 || targetIndex >= items.length) return;
     const newItems = [...items];
     const [moved] = newItems.splice(index, 1);
     newItems.splice(targetIndex, 0, moved);
-    setItems(newItems);
+    const reordered = newItems.map((item, idx) => ({ ...item, block_order: idx + 1 }));
+    setItems(reordered);
     setHasUnpublishedChanges(true);
+    await saveLinkBlocks(reordered);
   };
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
+    await saveLinkBlocks(items);
     setHasUnpublishedChanges(false);
     toast.success("Your page changes are now published live!");
   };
 
   const publicHandle = user?.username || "me";
-  const publicUrl = `${window.location.origin}/${publicHandle}`;
+  const publicUrl = getDynamicPublicUrl(publicHandle);
 
   return (
     <div className="w-full px-4 sm:px-6 md:px-8 py-6 md:py-8 flex flex-col gap-6">
@@ -166,13 +219,15 @@ const LinksWorkspace = () => {
 
           <button
             onClick={handlePublish}
-            disabled={!hasUnpublishedChanges}
+            disabled={isSaving}
             className={`px-4 py-2 text-xs font-bold rounded-xl transition-all shadow-sm ${
-              hasUnpublishedChanges
+              isSaving
+                ? "bg-[#2C302C] text-amber-400 cursor-wait border border-[#3B403B]"
+                : hasUnpublishedChanges
                 ? "bg-[#D17A67] hover:bg-[#E39782] text-white cursor-pointer"
-                : "bg-[#2C302C] text-[#B5BAB2] cursor-not-allowed border border-[#3B403B]"
+                : "bg-[#2C302C] text-[#B5BAB2] border border-[#3B403B]"
             }`}>
-            {hasUnpublishedChanges ? "Publish changes" : "Published"}
+            {isSaving ? "Saving…" : hasUnpublishedChanges ? "Publish changes" : "Published"}
           </button>
         </div>
       </div>
