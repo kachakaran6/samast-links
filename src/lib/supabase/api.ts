@@ -740,6 +740,10 @@ export async function deleteLinkBlockById(blockId: string) {
 }
 
 export async function getUserLinks(userId: string) {
+  if (!isSupabaseConfigured) {
+    const localLinks = getLocalStore("links").filter((l) => l.userId === userId || !l.userId);
+    return mapDoc(localLinks);
+  }
   try {
     const { data, error } = await supabase
       .from("links")
@@ -773,6 +777,17 @@ export async function createLinkBlock(block: any, index: any, link_id: any) {
     block_order: index,
   };
 
+  if (!isSupabaseConfigured) {
+    const localBlocks = getLocalStore("link_blocks");
+    const doc = mapDoc({
+      id: `block_${Date.now()}_${index}`,
+      ...payload,
+    });
+    localBlocks.push(doc);
+    setLocalStore("link_blocks", localBlocks);
+    return doc;
+  }
+
   try {
     const { data: newBlock, error } = await supabase
       .from("link_blocks")
@@ -802,7 +817,7 @@ export async function manageLinkBlock(blocks: any, link_id: any) {
   await Promise.all(
     blocks.map(async (ele: any, i: any) => {
       const blockId = ele.$id || ele.id;
-      if (blockId) {
+      if (blockId && !blockId.startsWith("temp-")) {
         let updatedBlock = await updateLinkBlockById(ele, i, link_id);
         blocksData.push(updatedBlock);
       } else {
@@ -835,6 +850,16 @@ export async function updateLinkBlockById(
     is_featured: block?.is_featured ?? false,
   };
 
+  if (!isSupabaseConfigured) {
+    const localBlocks = getLocalStore("link_blocks");
+    const idx = localBlocks.findIndex((b) => b.id === blockId);
+    const doc = mapDoc({ id: blockId || `block_${Date.now()}_${index}`, ...payload });
+    if (idx >= 0) localBlocks[idx] = doc;
+    else localBlocks.push(doc);
+    setLocalStore("link_blocks", localBlocks);
+    return doc;
+  }
+
   try {
     const { data: updatedBlock, error } = await supabase
       .from("link_blocks")
@@ -861,6 +886,7 @@ export async function updateLinkBlockById(
 
 export async function handleBlockClick(block: any) {
   const blockId = block.$id || block.id;
+  if (!isSupabaseConfigured) return;
   try {
     const { data: currentBlock } = await supabase
       .from("link_blocks")
@@ -883,6 +909,10 @@ export async function handleBlockClick(block: any) {
 }
 
 export async function getLinkBlocksByLinkId(link_id: string, _queries?: any) {
+  if (!isSupabaseConfigured) {
+    const localBlocks = getLocalStore("link_blocks").filter((b) => b.link_id === link_id);
+    return handleBlocksData(mapDoc(localBlocks));
+  }
   try {
     const { data, error } = await supabase
       .from("link_blocks")
@@ -902,6 +932,10 @@ export async function getLinkBlocksByLinkId(link_id: string, _queries?: any) {
 }
 
 export async function validateLink(slug: string) {
+  if (!isSupabaseConfigured) {
+    const localLinks = getLocalStore("links").filter((l) => l.slug === slug);
+    return mapDoc(localLinks);
+  }
   try {
     const { data, error } = await supabase
       .from("links")
@@ -920,6 +954,11 @@ export async function validateLink(slug: string) {
 }
 
 export async function getLinkBySlug(slug: any) {
+  if (!isSupabaseConfigured) {
+    const localLinks = getLocalStore("links");
+    const match = localLinks.find((l) => l.slug === slug);
+    return match ? mapDoc(match) : null;
+  }
   try {
     const { data, error } = await supabase
       .from("links")
@@ -942,6 +981,16 @@ export async function getLinkBySlug(slug: any) {
 }
 
 export async function getSocialMediaByLinkId(link_id: string) {
+  if (!isSupabaseConfigured) {
+    const localSocials = getLocalStore("social_media");
+    let match = localSocials.find((s) => s.link_id === link_id);
+    if (!match) {
+      match = mapDoc({ id: `soc_${Date.now()}`, link_id });
+      localSocials.push(match);
+      setLocalStore("social_media", localSocials);
+    }
+    return match;
+  }
   try {
     const { data: socials } = await supabase
       .from("social_media")
@@ -990,6 +1039,13 @@ export async function saveStatsToDb(data: {
   countryCode: string;
   referrer?: any;
 }) {
+  if (!isSupabaseConfigured) {
+    const localStats = getLocalStore("stats");
+    const doc = mapDoc({ id: `stat_${Date.now()}`, ...data, total_views_by_ip: 1 });
+    localStats.push(doc);
+    setLocalStore("stats", localStats);
+    return doc;
+  }
   try {
     const { data: existingIp } = await supabase
       .from("stats")
@@ -1032,6 +1088,10 @@ export async function saveStatsToDb(data: {
 }
 
 export async function getStatsByLinkId(link_id: string) {
+  if (!isSupabaseConfigured) {
+    const localStats = getLocalStore("stats").filter((s) => s.link_id === link_id);
+    return mapDoc(localStats);
+  }
   try {
     const { data, error } = await supabase
       .from("stats")

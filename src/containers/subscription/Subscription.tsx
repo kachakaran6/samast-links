@@ -6,8 +6,8 @@ import { appConfig } from "@/lib/config/appConfig";
 const Subscription = () => {
   const { user } = useUserContext();
   return (
-    <div className="max-sm:px-2 w-full p-5">
-      <div className="flex flex-col gap-8 md:gap-14 items-center  max-w-[90%] m-auto">
+    <div className="w-full px-4 sm:px-6 md:px-8 py-6 md:py-8">
+      <div className="flex flex-col gap-8 md:gap-14 items-center w-full">
         <div className="w-full flex flex-col gap-2">
           <div className="text-3xl font-medium text-center text-gradient flex gap-2 flex-center border-b w-max mx-auto border-b-gray-500">
             Active Plan :

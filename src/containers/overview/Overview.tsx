@@ -41,7 +41,7 @@ const Overview = () => {
   const isPublished = Boolean(primaryLink?.is_published ?? true);
 
   return (
-    <div className="max-w-6xl mx-auto p-6 md:p-8 flex flex-col gap-8">
+    <div className="w-full px-4 sm:px-6 md:px-8 py-6 md:py-8 flex flex-col gap-8">
       {/* Header Greeting */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
