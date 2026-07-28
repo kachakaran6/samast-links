@@ -112,29 +112,44 @@ export function calculatePercentage(oldCount: number, newCount: number) {
 }
 
 export const handleBlocksData = (documents: any) => {
+  if (!Array.isArray(documents)) return [];
   let tempBlocksData: any = [];
 
   documents.forEach((ele: any) => {
-    let tempValues;
+    let tempValues: any = {};
     if (ele?.other_values) {
-      tempValues = JSON.parse(ele?.other_values);
+      try {
+        tempValues = typeof ele.other_values === "string" ? JSON.parse(ele.other_values) : ele.other_values;
+      } catch (e) {}
     }
 
-    if (ele?.link) {
-      tempValues = { link: ele?.link, ...tempValues };
-    } else {
-      tempValues = { ...tempValues };
-    }
-    tempBlocksData.push(
-      JSON.parse(JSON.stringify({ ...ele, val: tempValues }))
-    );
+    const titleVal = ele.title || tempValues?.title || ele.label || tempValues?.label || ele.name || tempValues?.name || "";
+    const linkVal = ele.link || tempValues?.link || ele.url || tempValues?.url || "";
+    const imgVal = ele.imageUrl || tempValues?.imageUrl || ele.image_url || tempValues?.image_url || "";
+
+    tempBlocksData.push({
+      ...ele,
+      $id: ele.id || ele.$id,
+      id: ele.id || ele.$id,
+      link: linkVal,
+      title: titleVal,
+      label: titleVal,
+      name: titleVal,
+      imageUrl: imgVal,
+      val: {
+        link: linkVal,
+        label: titleVal,
+        title: titleVal,
+        name: titleVal,
+        imageUrl: imgVal,
+        desc: ele.description || tempValues?.desc || "",
+        tags: ele.tags || tempValues?.tags || [],
+        ...tempValues,
+      },
+    });
   });
 
-  tempBlocksData = JSON.parse(
-    JSON.stringify(
-      tempBlocksData.sort((a: any, b: any) => a.block_order - b.block_order)
-    )
-  );
+  tempBlocksData = tempBlocksData.sort((a: any, b: any) => (a.block_order || 0) - (b.block_order || 0));
   return tempBlocksData;
 };
 

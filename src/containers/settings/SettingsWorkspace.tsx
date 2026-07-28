@@ -56,15 +56,7 @@ const SettingsWorkspace = () => {
 
   return (
     <div className="w-full px-4 sm:px-6 md:px-8 py-6 md:py-8 flex flex-col gap-8">
-      {/* Workspace Header */}
-      <div>
-        <h2 className="text-2xl font-bold text-ink tracking-tight">
-          Page & Account Settings
-        </h2>
-        <p className="text-xs text-ink-muted mt-0.5">
-          Manage your public handle, SEO metadata, billing license, and account security.
-        </p>
-      </div>
+
 
       <div className="flex flex-col gap-8">
         {/* GROUP 1: PAGE IDENTITY */}

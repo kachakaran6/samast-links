@@ -18,7 +18,7 @@ export type IUpdateUser = {
 export type INewLink = {
   userId: string;
   title: string;
-  file: File[];
+  file?: File[];
   slug: string;
   description?: string;
 };
@@ -27,7 +27,7 @@ export type IUpdateLink = {
   linkId: string;
   userId: string;
   title: string;
-  file: File[];
+  file?: File[];
   slug: string;
   description?: string;
   imageUrl: any;

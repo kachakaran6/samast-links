@@ -43,17 +43,8 @@ const Overview = () => {
 
   return (
     <div className="w-full px-4 sm:px-6 md:px-8 py-6 md:py-8 flex flex-col gap-8">
-      {/* Header Greeting */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex flex-col gap-1">
-          <h2 className="text-2xl md:text-3xl font-bold text-ink tracking-tight">
-            Welcome back, {user?.name || "Creator"}
-          </h2>
-          <p className="text-sm text-ink-muted">
-            Here's an overview of your Linkmonks publishing status and page health.
-          </p>
-        </div>
-
+      {/* Top Action Bar */}
+      <div className="flex justify-end">
         <div className="inline-flex items-center gap-2 bg-surface border border-border px-3.5 py-2 rounded-xl">
           <span className="w-2.5 h-2.5 rounded-full bg-[#6EBB91] animate-pulse" />
           <span className="text-xs font-bold text-[#6EBB91]">Page Live & Ready</span>

@@ -19,18 +19,9 @@ const AnalyticsWorkspace = () => {
 
   return (
     <div className="w-full px-4 sm:px-6 md:px-8 py-6 md:py-8 flex flex-col gap-8">
-      {/* Page Title */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-ink tracking-tight">
-            Analytics & Click Trends
-          </h2>
-          <p className="text-xs text-ink-muted mt-0.5">
-            Measure visitor engagement, top link CTRs, and growth trends over time.
-          </p>
-        </div>
-
-        {isPro && (
+      {/* Time Range Selector */}
+      {isPro && (
+        <div className="flex justify-end">
           <div className="flex items-center gap-1.5 bg-surface border border-border p-1 rounded-xl">
             {[7, 30, 90].map((r) => (
               <button
@@ -45,8 +36,8 @@ const AnalyticsWorkspace = () => {
               </button>
             ))}
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Free User Context Upgrade Card (Per PRD 6.4) */}
       {!isPro ? (

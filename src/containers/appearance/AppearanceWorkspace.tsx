@@ -76,26 +76,19 @@ const AppearanceWorkspace = () => {
 
   return (
     <div className="w-full px-4 sm:px-6 md:px-8 py-6 md:py-8 flex flex-col gap-8">
-      {/* Page Title */}
-      <div>
-        <h2 className="text-2xl font-bold text-white tracking-tight">
-          Appearance & Branding
-        </h2>
-        <p className="text-xs text-[#B5BAB2] mt-0.5">
-          Customize your public bio page layout, profile photo, themes, and social badges.
-        </p>
-      </div>
+
 
       {/* Main Layout: Left Navigation Rail & Right Section Body */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
         {/* Left Section Navigation (md:col-span-3) */}
-        <div className="md:col-span-3 flex flex-row md:flex-col gap-1 bg-[#222522] border border-[#3B403B] rounded-2xl p-2 overflow-x-auto">
+        <div className="md:col-span-3 flex flex-row md:flex-col gap-1.5 bg-surface border border-border rounded-2xl p-2.5 overflow-x-auto">
           <button
             onClick={() => setActiveSection("profile")}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left w-full ${
+            style={activeSection === "profile" ? { backgroundColor: accent.color } : undefined}
+            className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all text-left w-full ${
               activeSection === "profile"
-                ? "bg-[#D17A67] text-white shadow-sm"
-                : "text-[#B5BAB2] hover:text-white hover:bg-[#2C302C]"
+                ? "text-white shadow-sm"
+                : "text-ink-muted hover:text-ink hover:bg-surface-muted"
             }`}>
             <User className="w-4 h-4" />
             <span>Profile</span>
@@ -103,10 +96,11 @@ const AppearanceWorkspace = () => {
 
           <button
             onClick={() => setActiveSection("theme")}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left w-full ${
+            style={activeSection === "theme" ? { backgroundColor: accent.color } : undefined}
+            className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all text-left w-full ${
               activeSection === "theme"
-                ? "bg-[#D17A67] text-white shadow-sm"
-                : "text-[#B5BAB2] hover:text-white hover:bg-[#2C302C]"
+                ? "text-white shadow-sm"
+                : "text-ink-muted hover:text-ink hover:bg-surface-muted"
             }`}>
             <Palette className="w-4 h-4" />
             <span>Themes</span>
@@ -114,10 +108,11 @@ const AppearanceWorkspace = () => {
 
           <button
             onClick={() => setActiveSection("buttons")}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left w-full ${
+            style={activeSection === "buttons" ? { backgroundColor: accent.color } : undefined}
+            className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all text-left w-full ${
               activeSection === "buttons"
-                ? "bg-[#D17A67] text-white shadow-sm"
-                : "text-[#B5BAB2] hover:text-white hover:bg-[#2C302C]"
+                ? "text-white shadow-sm"
+                : "text-ink-muted hover:text-ink hover:bg-surface-muted"
             }`}>
             <Square className="w-4 h-4" />
             <span>Button Style</span>
@@ -125,10 +120,11 @@ const AppearanceWorkspace = () => {
 
           <button
             onClick={() => setActiveSection("social")}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left w-full ${
+            style={activeSection === "social" ? { backgroundColor: accent.color } : undefined}
+            className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all text-left w-full ${
               activeSection === "social"
-                ? "bg-[#D17A67] text-white shadow-sm"
-                : "text-[#B5BAB2] hover:text-white hover:bg-[#2C302C]"
+                ? "text-white shadow-sm"
+                : "text-ink-muted hover:text-ink hover:bg-surface-muted"
             }`}>
             <Share2 className="w-4 h-4" />
             <span>Social Links</span>
@@ -139,20 +135,20 @@ const AppearanceWorkspace = () => {
         <div className="md:col-span-9 flex flex-col gap-6">
           {/* SECTION 1: PROFILE */}
           {activeSection === "profile" && (
-            <div className="bg-[#222522] border border-[#3B403B] rounded-2xl p-6 flex flex-col gap-6">
-              <h3 className="text-base font-bold text-white">Profile Details</h3>
+            <div className="bg-surface border border-border rounded-2xl p-6 flex flex-col gap-6">
+              <h3 className="text-base font-bold text-ink">Profile Details</h3>
 
               {/* Avatar Uploader (96px) */}
               <div className="flex items-center gap-6">
                 <img
                   src={avatarUrl}
                   alt="avatar"
-                  className="w-24 h-24 rounded-full object-cover border-2 border-[#3B403B]"
+                  className="w-24 h-24 rounded-full object-cover border-2 border-border bg-canvas"
                 />
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center gap-2">
-                    <label className="cursor-pointer px-4 py-2 bg-[#2C302C] hover:bg-[#3B403B] text-white text-xs font-bold rounded-xl border border-[#3B403B] flex items-center gap-2">
-                      <Upload className="w-4 h-4" />
+                    <label className="cursor-pointer px-4 py-2 bg-surface-muted hover:bg-border text-ink text-xs font-bold rounded-xl border border-border flex items-center gap-2 transition-all">
+                      <Upload className="w-4 h-4 text-ink-muted" />
                       <span>Upload Avatar</span>
                       <input
                         type="file"
@@ -171,11 +167,11 @@ const AppearanceWorkspace = () => {
                       onClick={() =>
                         setAvatarUrl("/assets/icons/profile-placeholder.svg")
                       }
-                      className="px-3 py-2 text-xs font-bold text-red-400 hover:bg-[#2C302C] rounded-xl">
+                      className="px-3 py-2 text-xs font-bold text-red-400 hover:bg-surface-muted rounded-xl transition-all">
                       Remove
                     </button>
                   </div>
-                  <span className="text-[11px] text-[#B5BAB2]">
+                  <span className="text-[11px] text-ink-muted">
                     Recommended: Square PNG, JPG or WebP (Max 2MB).
                   </span>
                 </div>
@@ -184,26 +180,26 @@ const AppearanceWorkspace = () => {
               {/* Display Name & Bio */}
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-[#B5BAB2]">Display Name</label>
+                  <label className="text-xs font-bold text-ink-muted">Display Name</label>
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-[#181A18] border border-[#3B403B] rounded-xl text-xs text-white outline-none focus:border-[#D17A67]"
+                    className="w-full px-3.5 py-2.5 bg-canvas border border-border rounded-xl text-xs text-ink outline-none focus:border-accent"
                   />
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-[#B5BAB2]">Bio Description</label>
+                  <label className="text-xs font-bold text-ink-muted">Bio Description</label>
                   <textarea
                     rows={3}
                     maxLength={160}
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
                     placeholder="Tell your visitors who you are and what you publish…"
-                    className="w-full px-3.5 py-2.5 bg-[#181A18] border border-[#3B403B] rounded-xl text-xs text-white outline-none focus:border-[#D17A67]"
+                    className="w-full px-3.5 py-2.5 bg-canvas border border-border rounded-xl text-xs text-ink outline-none focus:border-accent"
                   />
-                  <span className="text-[10px] text-[#B5BAB2] text-right">
+                  <span className="text-[10px] text-ink-muted text-right">
                     {bio.length} / 160 characters
                   </span>
                 </div>
@@ -212,7 +208,8 @@ const AppearanceWorkspace = () => {
               <div className="flex justify-end">
                 <button
                   onClick={handleSaveProfile}
-                  className="px-5 py-2.5 bg-[#D17A67] hover:bg-[#E39782] text-white text-xs font-bold rounded-xl shadow-sm">
+                  style={{ backgroundColor: accent.color }}
+                  className="px-5 py-2.5 text-white text-xs font-bold rounded-xl shadow-sm transition-all">
                   Save Profile
                 </button>
               </div>
@@ -357,21 +354,22 @@ const AppearanceWorkspace = () => {
 
           {/* SECTION 3: BUTTON STYLE */}
           {activeSection === "buttons" && (
-            <div className="bg-[#222522] border border-[#3B403B] rounded-2xl p-6 flex flex-col gap-6">
-              <h3 className="text-base font-bold text-white">Button Customizer</h3>
+            <div className="bg-surface border border-border rounded-2xl p-6 flex flex-col gap-6">
+              <h3 className="text-base font-bold text-ink">Button Customizer</h3>
 
               {/* Shape Presets */}
               <div className="flex flex-col gap-3">
-                <label className="text-xs font-bold text-[#B5BAB2]">Button Shape</label>
+                <label className="text-xs font-bold text-ink-muted">Button Shape</label>
                 <div className="grid grid-cols-3 gap-3">
                   {PRO_BUTTON_SHAPES.map((shape) => (
                     <button
                       key={shape.id}
                       onClick={() => setButtonShape(shape.id)}
+                      style={buttonShape === shape.id ? { backgroundColor: accent.color } : undefined}
                       className={`p-3 border text-xs font-bold transition-all text-center rounded-xl ${
                         buttonShape === shape.id
-                          ? "border-[#D17A67] bg-[#4A2A24] text-white"
-                          : "border-[#3B403B] bg-[#181A18] text-[#B5BAB2]"
+                          ? "text-white border-transparent shadow-xs"
+                          : "border-border bg-canvas text-ink-muted hover:text-ink"
                       }`}>
                       {shape.name}
                     </button>
@@ -381,16 +379,17 @@ const AppearanceWorkspace = () => {
 
               {/* Style Presets */}
               <div className="flex flex-col gap-3">
-                <label className="text-xs font-bold text-[#B5BAB2]">Fill Style</label>
+                <label className="text-xs font-bold text-ink-muted">Fill Style</label>
                 <div className="grid grid-cols-3 gap-3">
                   {["filled", "outline", "minimal"].map((st) => (
                     <button
                       key={st}
                       onClick={() => setButtonStyle(st)}
+                      style={buttonStyle === st ? { backgroundColor: accent.color } : undefined}
                       className={`p-3 border text-xs font-bold capitalize rounded-xl transition-all ${
                         buttonStyle === st
-                          ? "border-[#D17A67] bg-[#4A2A24] text-white"
-                          : "border-[#3B403B] bg-[#181A18] text-[#B5BAB2]"
+                          ? "text-white border-transparent shadow-xs"
+                          : "border-border bg-canvas text-ink-muted hover:text-ink"
                       }`}>
                       {st}
                     </button>
@@ -402,15 +401,15 @@ const AppearanceWorkspace = () => {
 
           {/* SECTION 4: SOCIAL LINKS */}
           {activeSection === "social" && (
-            <div className="bg-[#222522] border border-[#3B403B] rounded-2xl p-6 flex flex-col gap-6">
-              <h3 className="text-base font-bold text-white">Social Media Profiles</h3>
+            <div className="bg-surface border border-border rounded-2xl p-6 flex flex-col gap-6">
+              <h3 className="text-base font-bold text-ink">Social Media Profiles</h3>
 
               {/* Add Platform Form */}
-              <div className="flex flex-col sm:flex-row gap-3 bg-[#181A18] p-4 border border-[#3B403B] rounded-xl">
+              <div className="flex flex-col sm:flex-row gap-3 bg-canvas p-4 border border-border rounded-xl">
                 <select
                   value={newPlatform}
                   onChange={(e) => setNewPlatform(e.target.value)}
-                  className="bg-[#222522] border border-[#3B403B] text-xs text-white rounded-xl px-3 py-2 outline-none">
+                  className="bg-surface border border-border text-xs text-ink rounded-xl px-3 py-2 outline-none">
                   {socialPlatforms.map((p) => (
                     <option key={p.id} value={p.name}>
                       {p.name}
@@ -423,12 +422,13 @@ const AppearanceWorkspace = () => {
                   placeholder="https://x.com/username"
                   value={newSocialUrl}
                   onChange={(e) => setNewSocialUrl(e.target.value)}
-                  className="flex-1 px-3 py-2 bg-[#222522] border border-[#3B403B] rounded-xl text-xs text-white outline-none"
+                  className="flex-1 px-3 py-2 bg-surface border border-border rounded-xl text-xs text-ink outline-none focus:border-accent"
                 />
 
                 <button
                   onClick={handleAddSocial}
-                  className="px-4 py-2 bg-[#D17A67] hover:bg-[#E39782] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shrink-0">
+                  style={{ backgroundColor: accent.color }}
+                  className="px-4 py-2 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shrink-0 shadow-xs">
                   <Plus className="w-4 h-4" />
                   <span>Add</span>
                 </button>
@@ -439,17 +439,17 @@ const AppearanceWorkspace = () => {
                 {socialLinks.map((item, idx) => (
                   <div
                     key={idx}
-                    className="p-3.5 bg-[#181A18] border border-[#3B403B] rounded-xl flex items-center justify-between">
+                    className="p-3.5 bg-canvas border border-border rounded-xl flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <Share2 className="w-4 h-4 text-[#D17A67]" />
+                      <Share2 className="w-4 h-4" style={{ color: accent.color }} />
                       <div className="flex flex-col">
-                        <span className="text-xs font-bold text-white">{item.platform}</span>
-                        <span className="text-[11px] font-mono text-[#B5BAB2]">{item.url}</span>
+                        <span className="text-xs font-bold text-ink">{item.platform}</span>
+                        <span className="text-[11px] font-mono text-ink-muted">{item.url}</span>
                       </div>
                     </div>
                     <button
                       onClick={() => handleRemoveSocial(idx)}
-                      className="p-1.5 text-red-400 hover:bg-[#2C302C] rounded-lg">
+                      className="p-1.5 text-red hover:bg-red/10 rounded-lg transition-all">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>

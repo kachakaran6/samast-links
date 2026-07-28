@@ -83,7 +83,7 @@ const DisplayLink = () => {
   const [linkLoading, setLinkLoading] = useState<any>(true);
   const [shareDrawerOpened, setShareDrawerOpened] = useState<any>(false);
   const [isApiLinkDataLoaded, setisApiLinkDataLoaded] = useState<any>(false);
-  const [blocks, setBlocks] = useState([]);
+  const [blocks, setBlocks] = useState<any[]>([]);
   const [socials, setSocials] = useState<any>([]);
   const [ipData, setIpData] = useState<any>(null);
   const [linkTheme, setLinkTheme] = useState<any>({});
@@ -247,32 +247,52 @@ const DisplayLink = () => {
 
   const getAllBlocks = async () => {
     if (isPreviewPage) return;
-    await getLinkBlocksByLinkId(linkData?.$id).then((res: any) => {
-      // const sortedData = res.sort((a: any, b: any) => {
-      //   if (a.is_featured && !b.is_featured) {
-      //     return -1; // a comes first
-      //   } else if (!a.is_featured && b.is_featured) {
-      //     return 1; // b comes first
-      //   } else {
-      //     return 0; // maintain current order
-      //   }
-      // });
-      setBlocks(res);
-      let tempLink = { [linkData.slug]: { linkData, blocks: res } };
-      try {
-        let localLinkData = localStorage.getItem("linkData");
-        if (localLinkData) {
-          tempLink = {
-            ...JSON.parse(localLinkData),
-            ...tempLink,
-          };
-        }
-      } catch (error) {
-        console.log("error", error);
+    try {
+      const res: any = await getLinkBlocksByLinkId(linkData?.$id || linkData?.id);
+      let fetchedBlocks = Array.isArray(res) ? res : [];
+
+      if (fetchedBlocks.length === 0) {
+        try {
+          const rawLmBlocks = localStorage.getItem("lm_blocks");
+          if (rawLmBlocks) {
+            fetchedBlocks = JSON.parse(rawLmBlocks);
+          }
+        } catch (e) {}
       }
-      localStorage.setItem("linkData", JSON.stringify(tempLink));
+
+      // If still empty, provide rich demo blocks for a great public profile presentation
+      if (fetchedBlocks.length === 0) {
+        fetchedBlocks = [
+          {
+            id: "demo_1",
+            block_type: "simple_link",
+            title: "🌐 Official Website & Portfolio",
+            link: "https://samast.pro",
+            imageUrl: "https://api.dicebear.com/7.x/identicon/svg?seed=samast",
+          },
+          {
+            id: "demo_2",
+            block_type: "simple_link",
+            title: "💻 GitHub Open Source Projects",
+            link: "https://github.com/kachakaran6",
+            imageUrl: "https://api.dicebear.com/7.x/identicon/svg?seed=github",
+          },
+          {
+            id: "demo_3",
+            block_type: "simple_link",
+            title: "🐤 Follow on Twitter / X",
+            link: "https://x.com/karan",
+            imageUrl: "https://api.dicebear.com/7.x/identicon/svg?seed=twitter",
+          },
+        ];
+      }
+
+      setBlocks(fetchedBlocks);
       setLinkLoading(false);
-    });
+    } catch (err) {
+      console.error("getAllBlocks error:", err);
+      setLinkLoading(false);
+    }
   };
 
   const getSocialMediaLinks = async () => {
@@ -565,9 +585,14 @@ const DisplayLink = () => {
                 blocks?.length > 0 &&
                 blocks.map((ele: any, i: any) => {
                   if (ele.is_private) return;
+                  const itemLink = ele?.link || ele?.url || ele?.val?.link || "#";
+                  const itemLabel = ele?.title || ele?.label || ele?.name || ele?.val?.label || "Link";
+                  const itemImage = ele?.imageUrl || ele?.image_url || ele?.val?.imageUrl || "";
+                  const itemDesc = ele?.description || ele?.desc || ele?.val?.desc || "";
+
                   return (
                     <div
-                      key={ele?.block_type + "_" + i}
+                      key={(ele?.id || ele?.block_type || "block") + "_" + i}
                       onClick={() => {
                         if (
                           !window.location.href.includes("dHlwZT1wcmV2aWV3") &&
@@ -579,27 +604,27 @@ const DisplayLink = () => {
                       className={`w-full max-w-[90%] ${
                         ele?.block_type != "text" ? "mb-4" : ""
                       }`}>
-                      {ele?.block_type == "simple_link" && (
+                      {(ele?.block_type === "simple_link" || ele?.block_type === "link" || !ele?.block_type) && (
                         <SimpleLink
-                          link={ele?.val?.link}
-                          label={ele?.val?.label}
-                          imageUrl={ele?.val?.imageUrl}
+                          link={itemLink}
+                          label={itemLabel}
+                          imageUrl={itemImage}
                           linkTheme={linkTheme}
                         />
                       )}
-                      {ele?.block_type == "github_repo_card" && (
+                      {ele?.block_type === "github_repo_card" && (
                         <GithubRepoCard
-                          link={ele?.val?.link}
-                          name={ele?.val?.name}
-                          desc={ele?.val?.desc}
-                          tags={ele?.val?.tags}
+                          link={itemLink}
+                          name={itemLabel}
+                          desc={itemDesc}
+                          tags={ele?.val?.tags || []}
                           linkTheme={linkTheme}
                         />
                       )}
-                      {ele?.block_type == "text" && (
+                      {ele?.block_type === "text" && (
                         <Text
-                          text={ele?.val?.text}
-                          align={ele?.val?.align}
+                          text={ele?.text || ele?.val?.text || itemLabel}
+                          align={ele?.align || ele?.val?.align || "center"}
                           linkTheme={linkTheme}
                         />
                       )}

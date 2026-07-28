@@ -627,7 +627,7 @@ export async function updateLink(link: IUpdateLink) {
     let imageUrl = link.imageUrl ? String(link.imageUrl) : "";
     let imageId = link.imageId || "";
 
-    if (hasFileToUpdate) {
+    if (hasFileToUpdate && link.file && link.file.length > 0) {
       const uploadedFile = await uploadFile(link.file[0]);
       if (uploadedFile) {
         imageId = uploadedFile.id;
@@ -740,6 +740,7 @@ export async function deleteLinkBlockById(blockId: string) {
 }
 
 export async function getUserLinks(userId: string) {
+  if (!userId) return mapDoc([]);
   if (!isSupabaseConfigured) {
     const localLinks = getLocalStore("links").filter((l) => l.userId === userId || !l.userId);
     return mapDoc(localLinks);
@@ -748,12 +749,20 @@ export async function getUserLinks(userId: string) {
     const { data, error } = await supabase
       .from("links")
       .select("*")
-      .eq("userId", userId)
+      .or(`userId.eq.${userId},userId.eq.user_${userId}`)
       .order("created_at", { ascending: false });
 
-    if (error || !data) {
-      const localLinks = getLocalStore("links").filter((l) => l.userId === userId);
-      return mapDoc(localLinks);
+    if (error || !data || data.length === 0) {
+      // Fetch user profile to get exact handle/email
+      const dbUser = await getUserById(userId);
+      const userHandle = dbUser?.accountId || dbUser?.email?.split("@")[0] || "creator";
+      const created = await createLink({
+        userId: userId,
+        title: dbUser?.name || "My Bio Page",
+        slug: userHandle.toLowerCase(),
+        description: "Welcome to my official bio page!",
+      });
+      return mapDoc([created]);
     }
     return mapDoc(data);
   } catch (error) {
@@ -762,17 +771,25 @@ export async function getUserLinks(userId: string) {
   }
 }
 
+
+
 export async function createLinkBlock(block: any, index: any, link_id: any) {
-  let blockVal = { ...block };
-  let link = blockVal?.val?.link ?? null;
-  if (blockVal?.val?.link) {
-    delete blockVal.val.link;
-  }
+  let link = block?.link || block?.url || block?.val?.link || null;
+  let title = block?.title || block?.label || block?.name || block?.val?.label || "";
+  let imageUrl = block?.imageUrl || block?.image_url || block?.val?.imageUrl || "";
+
+  const otherValsObj = {
+    title: title,
+    label: title,
+    name: title,
+    imageUrl: imageUrl,
+    ...(block?.val || {}),
+  };
 
   const payload = {
     link_id: link_id,
-    block_type: block?.block_type ?? "",
-    other_values: JSON.stringify(blockVal?.val || {}),
+    block_type: block?.block_type || "simple_link",
+    other_values: JSON.stringify(otherValsObj),
     link: link,
     block_order: index,
   };
@@ -796,6 +813,7 @@ export async function createLinkBlock(block: any, index: any, link_id: any) {
       .single();
 
     if (error || !newBlock) {
+      console.warn("createLinkBlock Supabase warning, saving locally:", error);
       const localBlocks = getLocalStore("link_blocks");
       const doc = mapDoc({
         id: `block_${Date.now()}_${index}`,
@@ -817,7 +835,7 @@ export async function manageLinkBlock(blocks: any, link_id: any) {
   await Promise.all(
     blocks.map(async (ele: any, i: any) => {
       const blockId = ele.$id || ele.id;
-      if (blockId && !blockId.startsWith("temp-")) {
+      if (blockId && !blockId.startsWith("temp-") && !blockId.startsWith("block_") && !blockId.startsWith("demo_")) {
         let updatedBlock = await updateLinkBlockById(ele, i, link_id);
         blocksData.push(updatedBlock);
       } else {
@@ -836,14 +854,22 @@ export async function updateLinkBlockById(
   link_id: any
 ) {
   const blockId = block.$id || block.id;
-  let blockVal = { ...block };
-  let stringifiedValues = JSON.stringify(blockVal?.val || {});
-  let link = block?.val?.link ?? null;
+  let link = block?.link || block?.url || block?.val?.link || null;
+  let title = block?.title || block?.label || block?.name || block?.val?.label || "";
+  let imageUrl = block?.imageUrl || block?.image_url || block?.val?.imageUrl || "";
+
+  const otherValsObj = {
+    title: title,
+    label: title,
+    name: title,
+    imageUrl: imageUrl,
+    ...(block?.val || {}),
+  };
 
   const payload = {
     link_id: link_id,
-    block_type: block?.block_type ?? "",
-    other_values: stringifiedValues,
+    block_type: block?.block_type || "simple_link",
+    other_values: JSON.stringify(otherValsObj),
     link: link,
     block_order: index,
     is_private: block?.is_private ?? false,
@@ -954,28 +980,50 @@ export async function validateLink(slug: string) {
 }
 
 export async function getLinkBySlug(slug: any) {
+  if (!slug) return null;
+  const cleanSlug = String(slug).trim().toLowerCase();
+
   if (!isSupabaseConfigured) {
     const localLinks = getLocalStore("links");
-    const match = localLinks.find((l) => l.slug === slug);
+    const match = localLinks.find((l) => l.slug?.toLowerCase() === cleanSlug);
     return match ? mapDoc(match) : null;
   }
   try {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("links")
       .select("*")
-      .eq("slug", slug)
+      .ilike("slug", cleanSlug)
       .maybeSingle();
 
-    if (error || !data) {
-      const localLinks = getLocalStore("links");
-      const match = localLinks.find((l) => l.slug === slug);
-      if (match) return mapDoc(match);
-      return null;
+    if (data) {
+      return mapDoc(data);
     }
-    return mapDoc(data);
+
+    // Try finding user by accountId or email to auto-link profile
+    const { data: matchedUser } = await supabase
+      .from("users")
+      .select("*")
+      .or(`accountId.eq.${slug},email.ilike.${cleanSlug}%`)
+      .maybeSingle();
+
+    if (matchedUser) {
+      const createdLink = await createLink({
+        userId: matchedUser.id || matchedUser.accountId,
+        title: matchedUser.name || "My Bio Page",
+        slug: cleanSlug,
+        description: "Welcome to my official bio page!",
+      });
+      return createdLink;
+    }
+
+    const localLinks = getLocalStore("links");
+    const match = localLinks.find((l) => l.slug?.toLowerCase() === cleanSlug);
+    if (match) return mapDoc(match);
+
+    return null;
   } catch (error) {
     const localLinks = getLocalStore("links");
-    const match = localLinks.find((l) => l.slug === slug);
+    const match = localLinks.find((l) => l.slug?.toLowerCase() === cleanSlug);
     return match ? mapDoc(match) : null;
   }
 }

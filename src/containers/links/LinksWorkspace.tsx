@@ -200,14 +200,8 @@ const LinksWorkspace = () => {
 
   return (
     <div className="w-full px-4 sm:px-6 md:px-8 py-6 md:py-8 flex flex-col gap-6">
-      {/* Workspace Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-5">
-        <div>
-          <h2 className="text-2xl font-bold text-ink tracking-tight">Links Workspace</h2>
-          <p className="text-xs text-ink-muted mt-0.5">
-            Add destination links and choose their exact order on your bio page.
-          </p>
-        </div>
+      {/* Top Action Bar */}
+      <div className="flex justify-end border-b border-border pb-5">
 
         <div className="flex items-center gap-3">
           <a
