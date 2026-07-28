@@ -13,6 +13,7 @@ import {
   updateLink,
   deleteLinkById,
   getUserLinks,
+  getLinkBlocksByLinkId,
   validateLink,
   updatePassword,
 } from "@/lib/supabase/api";
@@ -128,5 +129,27 @@ export const useGetUserLinks = () => {
         queryKey: [QUERY_KEYS.GET_LINKS],
       });
     },
+  });
+};
+
+export const useGetLinks = (userId: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_USER_LINKS, userId],
+    queryFn: async () => {
+      const data = await getUserLinks(userId);
+      return Array.isArray(data) ? { documents: data } : data || { documents: [] };
+    },
+    enabled: !!userId,
+  });
+};
+
+export const useGetLinkBlocks = (linkId: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_LINK_BLOCKS, linkId],
+    queryFn: async () => {
+      const data = await getLinkBlocksByLinkId(linkId);
+      return Array.isArray(data) ? { documents: data } : data || { documents: [] };
+    },
+    enabled: !!linkId,
   });
 };

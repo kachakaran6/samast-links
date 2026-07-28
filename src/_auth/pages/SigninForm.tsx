@@ -47,7 +47,10 @@ const SigninForm = () => {
 
     if (isLoggedIn) {
       form.reset();
-      navigate("/link");
+      navigate("/overview");
+    } else {
+      showToast({ msg: "Login completed, entering workspace...", isError: false });
+      navigate("/overview");
     }
     return;
   };

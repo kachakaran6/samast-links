@@ -3,19 +3,42 @@ import { Button } from "@/components/ui";
 import { appConfig } from "@/lib/config/appConfig";
 import { MenuIcon } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useUserContext } from "@/context/AuthContext";
 
-const LandingMenu = ({ isLoggedIn }: any) => {
+const LandingMenu = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { isAuthenticated } = useUserContext();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleNavClick = (sectionId: string) => {
+    setMenuOpen(false);
+    if (location.pathname === "/") {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    } else {
+      navigate(`/#${sectionId}`);
+      setTimeout(() => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100);
+    }
+  };
+
   return (
     <div className="flex-center w-full fixed md:top-5 top-0 left-0 right-0 z-[90]">
       <div className="flex items-center justify-between max-md:w-full md:gap-20 bg-dark-4/70 backdrop-blur-md p-2 px-4 md:rounded-xl md:border border-dark-4 max-md:py-5">
-        <a
-          href={"/#"}
+        <Link
+          to="/"
           className="text-lg font-semibold text-primary-500 flex-center gap-1">
           {appConfig?.appName}
           <span className="text-xs text-gray-400">(Beta)</span>
-        </a>
+        </Link>
         <div
           className="cursor-pointer text-lg md:hidden"
           onClick={() => {
@@ -23,45 +46,56 @@ const LandingMenu = ({ isLoggedIn }: any) => {
           }}>
           <MenuIcon />
         </div>
-        <div className="hidden md:flex gap-4 items-center text-sm font-medium">
-          <a target="_blank" href={appConfig?.demoLink}>
-            <div className="cursor-pointer hover:text-white text-gray-200">
-              Demo
-            </div>
+
+        {/* Desktop Navbar Links */}
+        <div className="hidden md:flex gap-6 items-center text-sm font-medium">
+          <a
+            href="https://links.samast.pro/demo"
+            target="_blank"
+            rel="noreferrer"
+            className="cursor-pointer hover:text-white text-gray-300 transition-colors">
+            Demo
           </a>
-          <a className="w-[90%]" href={"/#features"}>
-            <div className="cursor-pointer hover:text-white text-gray-200">
-              Features
-            </div>
-          </a>
-          <a className="w-[90%]" href={"/#pricing"}>
-            <div className="cursor-pointer hover:text-white text-gray-200">
-              Pricing
-            </div>
-          </a>
+          <button
+            type="button"
+            onClick={() => handleNavClick("features")}
+            className="cursor-pointer hover:text-white text-gray-300 transition-colors">
+            Features
+          </button>
+          <button
+            type="button"
+            onClick={() => handleNavClick("pricing")}
+            className="cursor-pointer hover:text-white text-gray-300 transition-colors">
+            Pricing
+          </button>
         </div>
+
+        {/* CTA Buttons */}
         <div className="hidden md:flex items-center justify-center gap-5">
-          {!isLoggedIn && (
+          {!isAuthenticated ? (
             <>
-              <Link to={"/auth/sign-in"}>
-                <div className="text-sm font-semibold">Sign In</div>
+              <Link to="/auth/sign-in">
+                <div className="text-sm font-semibold text-gray-200 hover:text-white transition-colors">
+                  Sign In
+                </div>
               </Link>
-              <Link to={"/auth/sign-up"}>
-                <Button className="!h-7 text-sm font-semibold bg-slate-300 text-dark-1 hover:bg-slate-400">
-                  Sign Up
+              <Link to="/auth/sign-up">
+                <Button className="!h-8 px-4 text-xs font-bold bg-[#D17A67] text-white hover:bg-[#E39782] rounded-xl shadow-sm">
+                  Get Started
                 </Button>
               </Link>
             </>
-          )}
-          {isLoggedIn && (
-            <Link to={"/link"}>
-              <Button className="!h-7 text-sm font-semibold bg-slate-300 text-dark-1 hover:bg-slate-400">
+          ) : (
+            <Link to="/overview">
+              <Button className="!h-8 px-4 text-xs font-bold bg-[#D17A67] text-white hover:bg-[#E39782] rounded-xl shadow-sm">
                 Dashboard
               </Button>
             </Link>
           )}
         </div>
       </div>
+
+      {/* Mobile Drawer */}
       <CustomSheet
         side={"right"}
         title={appConfig?.appName}
@@ -76,51 +110,47 @@ const LandingMenu = ({ isLoggedIn }: any) => {
             onClick={() => setMenuOpen(false)}
             className="w-[90%]"
             target="_blank"
-            href={`${appConfig?.demoLink}`}>
+            rel="noreferrer"
+            href="https://links.samast.pro/demo">
             <div className="cursor-pointer hover:text-white text-gray-200 p-3 px-4 rounded-lg hover:bg-dark-3">
               Demo
             </div>
           </a>
-          <a
-            className="w-[90%]"
-            href={"#features"}
-            onClick={() => setMenuOpen(false)}>
+          <button
+            type="button"
+            className="w-[90%] text-left"
+            onClick={() => handleNavClick("features")}>
             <div className="cursor-pointer hover:text-white text-gray-200 p-3 px-4 rounded-lg hover:bg-dark-3">
               Features
             </div>
-          </a>
-          <a
-            onClick={() => setMenuOpen(false)}
-            className="w-[90%]"
-            href={"#pricing"}>
-            <div className="cu`rsor-pointer hover:text-white text-gray-200 p-3 px-4 rounded-lg hover:bg-dark-3">
+          </button>
+          <button
+            type="button"
+            className="w-[90%] text-left"
+            onClick={() => handleNavClick("pricing")}>
+            <div className="cursor-pointer hover:text-white text-gray-200 p-3 px-4 rounded-lg hover:bg-dark-3">
               Pricing
             </div>
-          </a>
+          </button>
           <div className="flex bottom-10 items-center justify-center gap-5 w-[90%] absolute">
-            {!isLoggedIn && (
-              <div className="flex flex-col gap-5 flex-center w-full">
-                <Link to={"/auth/sign-in"} className="w-full">
-                  <Button className="!h-10 border-dotted !w-full text-sm font-semibold bg-transparent border-primary-500 border">
+            {!isAuthenticated ? (
+              <div className="flex flex-col gap-3 flex-center w-full">
+                <Link to="/auth/sign-in" className="w-full" onClick={() => setMenuOpen(false)}>
+                  <Button className="!h-10 border !w-full text-xs font-bold bg-transparent border-[#3B403B] text-white rounded-xl">
                     Log In
                   </Button>
                 </Link>
-                <Link to={"/auth/sign-up"} className="w-full">
-                  <Button className="!h-10 !w-full text-sm font-semibold bg-slate-300 text-dark-1 hover:bg-slate-400">
+                <Link to="/auth/sign-up" className="w-full" onClick={() => setMenuOpen(false)}>
+                  <Button className="!h-10 !w-full text-xs font-bold bg-[#D17A67] text-white hover:bg-[#E39782] rounded-xl">
                     Create Account
                   </Button>
                 </Link>
               </div>
-            )}
-            {isLoggedIn && (
-              <Link to={"/link"}>
-                <div className="bg-[linear-gradient(50deg,_#bc48ff_0%,_#474bff_95%)] p-[1px] rounded-[9px]">
-                  <Button className="!h-10 w-full text-sm font-semibold bg-slate-300 text-dark-1 hover:bg-slate-400">
-                    <span className="bg-[linear-gradient(45deg,_#bc48ff_0%,_#474bff_90%)] bg-clip-text text-transparent   ">
-                      Open Dashboard
-                    </span>
-                  </Button>
-                </div>
+            ) : (
+              <Link to="/overview" className="w-full" onClick={() => setMenuOpen(false)}>
+                <Button className="!h-10 w-full text-xs font-bold bg-[#D17A67] text-white hover:bg-[#E39782] rounded-xl">
+                  Open Dashboard
+                </Button>
               </Link>
             )}
           </div>

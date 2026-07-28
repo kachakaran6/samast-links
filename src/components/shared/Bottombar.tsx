@@ -1,57 +1,33 @@
-import { Link, NavLink, useLocation } from "react-router-dom";
-
-import { bottombarLinks } from "@/constants";
-import { EyeIcon } from "lucide-react";
-import { FaRegCreditCard } from "react-icons/fa6";
+import { NavLink, useLocation } from "react-router-dom";
+import { appNavItems } from "./AppSidebar";
 
 const Bottombar = () => {
   const { pathname } = useLocation();
 
-  const handlePreviewClick = () => {
-    const showPreviewEvent = new Event("showPreview", { bubbles: true });
-    document.dispatchEvent(showPreviewEvent);
-  };
-
   return (
-    <section className="bottom-bar">
-      {bottombarLinks.map((link) => {
+    <nav className="fixed bottom-0 left-0 right-0 h-[64px] bg-[#181A18]/95 border-t border-[#3B403B] backdrop-blur-md flex items-center justify-around px-2 z-50 md:hidden">
+      {appNavItems.map((item) => {
+        const Icon = item.icon;
         const isActive =
-          (pathname != "/link/create" && pathname.includes(link.route)) ||
-          pathname == link.route;
+          pathname === item.route ||
+          (item.route !== "/overview" && pathname.startsWith(item.route)) ||
+          (item.route === "/links" && pathname.startsWith("/link"));
+
         return (
-          <Link
-            key={`bottombar-${link.label}`}
-            to={link.route}
-            className={`${
-              isActive ? "bg-primary-500" : ""
-            } flex-center p-2 transition w-max rounded-full`}>
-            <img
-              src={link.imgURL}
-              alt={link.label}
-              width={20}
-              height={20}
-              className={`${isActive && "invert-white"}`}
-            />
-          </Link>
+          <NavLink
+            key={item.label}
+            to={item.route}
+            className={`flex flex-col items-center justify-center min-w-[56px] min-h-[44px] px-2 py-1 rounded-xl transition-all ${
+              isActive
+                ? "text-[#D17A67] font-bold"
+                : "text-[#B5BAB2] hover:text-white"
+            }`}>
+            <Icon className="w-5 h-5 mb-0.5" />
+            <span className="text-[10px] tracking-tight">{item.label}</span>
+          </NavLink>
         );
       })}
-      <div
-        className={`leftsidebar-link group w-max ${
-          pathname === "subscriptions" && "bg-primary-500"
-        }`}
-        data-tooltip-id="tooltip"
-        data-tooltip-content={"Subscriptions"}
-        data-tooltip-place="right">
-        <NavLink to={"subscription"} className="flex gap-4 items-center p-2">
-          <FaRegCreditCard className="h-5  w-5 text-[#ccc]" />
-        </NavLink>
-      </div>
-      <div
-        onClick={handlePreviewClick}
-        className={`flex-center p-2 transition w-max rounded-full`}>
-        <EyeIcon className="cursor-pointer stroke-[#ccc]" />
-      </div>
-    </section>
+    </nav>
   );
 };
 

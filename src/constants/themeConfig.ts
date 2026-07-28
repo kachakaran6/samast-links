@@ -97,7 +97,7 @@ export const PRO_ACCENT_PALETTE = [
 ];
 
 export const PRO_BUTTON_SHAPES = [
-  { name: "Soft Rounded", radius: "12px" },
-  { name: "Pill", radius: "9999px" },
-  { name: "Modest Square", radius: "4px" },
+  { id: "rounded", name: "Soft Rounded", radius: "12px" },
+  { id: "pill", name: "Pill", radius: "9999px" },
+  { id: "square", name: "Modest Square", radius: "4px" },
 ];

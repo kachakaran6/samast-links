@@ -20,20 +20,35 @@ export default {
     },
     extend: {
       colors: {
-        primary: "#9E2A2B",
-        "primary-500": "#9E2A2B",
-        "primary-600": "#801F20",
-        "secondary-500": "#D97706",
-        "off-white": "#F4F4F5",
-        red: "#EF4444",
-        "dark-1": "#09090B",
-        "dark-2": "#121215",
-        "dark-3": "#18181B",
-        "dark-4": "#27272A",
-        "light-1": "#F4F4F5",
-        "light-2": "#E4E4E7",
-        "light-3": "#A1A1AA",
-        "light-4": "#71717A",
+        // Paper & Ink Design System Tokens (Dark mode primary)
+        canvas: "#181A18",
+        surface: "#222522",
+        "surface-muted": "#2C302C",
+        ink: "#F4F0E8",
+        "ink-muted": "#B5BAB2",
+        border: "#3B403B",
+        accent: "#D17A67", // Oxide red
+        "accent-hover": "#E39782",
+        "accent-soft": "#4A2A24",
+        success: "#6EBB91",
+        warning: "#D9A64E",
+        destructive: "#F08A82",
+
+        // Backward compatibility mappings
+        primary: "#D17A67",
+        "primary-500": "#D17A67",
+        "primary-600": "#B86352",
+        "secondary-500": "#D9A64E",
+        "off-white": "#F4F0E8",
+        red: "#F08A82",
+        "dark-1": "#181A18",
+        "dark-2": "#222522",
+        "dark-3": "#2C302C",
+        "dark-4": "#3B403B",
+        "light-1": "#F4F0E8",
+        "light-2": "#EAE5DC",
+        "light-3": "#B5BAB2",
+        "light-4": "#888E85",
       },
       screens: {
         xs: "480px",
@@ -44,9 +59,9 @@ export default {
         465: "465px",
       },
       fontFamily: {
-        sans: ["Plus Jakarta Sans", "Inter", "sans-serif"],
-        serif: ["Playfair Display", "Georgia", "serif"],
-        inter: ["Plus Jakarta Sans", "sans-serif"],
+        sans: ["Manrope", "sans-serif"],
+        serif: ["Newsreader", "serif"],
+        inter: ["Manrope", "sans-serif"],
       },
       keyframes: {
         "accordion-down": {

@@ -1,10 +1,9 @@
-import { useNavigate } from "react-router-dom";
 import { createContext, useContext, useEffect, useState } from "react";
 
 import { IUser } from "@/types";
 import { getCurrentUser } from "@/lib/supabase/api";
 
-export const INITIAL_USER = {
+export const INITIAL_USER: IUser = {
   id: "",
   name: "",
   email: "",
@@ -15,7 +14,7 @@ export const INITIAL_USER = {
 
 const INITIAL_STATE = {
   user: INITIAL_USER,
-  isLoading: false,
+  isLoading: true,
   isAuthenticated: false,
   setUser: () => {},
   setIsAuthenticated: () => {},
@@ -36,44 +35,66 @@ type IContextType = {
 const AuthContext = createContext<IContextType>(INITIAL_STATE);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const navigate = useNavigate();
   const [user, setUser] = useState<IUser>(INITIAL_USER);
   const [currentPlan, setCurrentPlan] = useState("free");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const checkAuthUser = async () => {
+  const [isLoading, setIsLoading] = useState(true);
+
+  const checkAuthUser = async (): Promise<boolean> => {
     setIsLoading(true);
     try {
-      const currentAccount = await getCurrentUser();
-      if (currentAccount) {
-        let tempUser = {
-          id: currentAccount.$id,
-          name: currentAccount.name,
-          email: currentAccount.email,
-          status: currentAccount.status,
-          emailVerification: currentAccount.emailVerification,
-          imageUrl: currentAccount.imageUrl,
-          is_pro: currentAccount.is_pro,
-          subscription_license_key: currentAccount.subscription_license_key,
+      const currentAccount: any = await getCurrentUser();
+      if (currentAccount && (currentAccount.$id || currentAccount.id || currentAccount.email)) {
+        const tempUser: IUser = {
+          id: currentAccount.$id || currentAccount.id,
+          name: currentAccount.name || "Creator",
+          username: currentAccount.username || currentAccount.name || "creator",
+          email: currentAccount.email || "",
+          status: true,
+          emailVerification: true,
+          imageUrl: currentAccount.imageUrl || "/assets/icons/profile-placeholder.svg",
+          is_pro: Boolean(currentAccount.is_pro),
+          subscription_license_key: currentAccount.subscription_license_key || "",
         };
         setUser(tempUser);
-        localStorage.setItem("currentUser", JSON.stringify(tempUser));
         setIsAuthenticated(true);
-        if (currentAccount && !currentAccount.emailVerification) {
-          if (!window.location.pathname.includes("verify-account")) {
-            navigate("/verify-account");
-          }
-          return false;
-        } else if (currentAccount && currentAccount.emailVerification) {
-          if (window.location.pathname.includes("verify-account")) {
-            navigate("/link");
-          }
-        }
+        localStorage.setItem("currentUser", JSON.stringify(tempUser));
         return true;
       }
+
+      // Check fallback currentUser in localStorage
+      const stored = localStorage.getItem("currentUser");
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (parsed && (parsed.id || parsed.email)) {
+            const tempUser: IUser = {
+              id: parsed.id || `user_${Date.now()}`,
+              name: parsed.name || "Creator",
+              username: parsed.username || parsed.name || "creator",
+              email: parsed.email || "",
+              status: true,
+              emailVerification: true,
+              imageUrl: parsed.imageUrl || "/assets/icons/profile-placeholder.svg",
+              is_pro: Boolean(parsed.is_pro),
+              subscription_license_key: parsed.subscription_license_key || "",
+            };
+            setUser(tempUser);
+            setIsAuthenticated(true);
+            return true;
+          }
+        } catch (e) {
+          // ignore
+        }
+      }
+
+      setIsAuthenticated(false);
+      setUser(INITIAL_USER);
       return false;
     } catch (error) {
-      console.error(error);
+      console.error("checkAuthUser error:", error);
+      setIsAuthenticated(false);
+      setUser(INITIAL_USER);
       return false;
     } finally {
       setIsLoading(false);
@@ -81,34 +102,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    if (!location.pathname.includes("auth")) {
-      const cookieFallback = localStorage.getItem("cookieFallback");
-      if (
-        cookieFallback === "[]" ||
-        cookieFallback === null ||
-        cookieFallback === undefined
-      ) {
-        console.log("navigating from 88");
-        navigate("auth/sign-in");
-      }
-      checkUserAuth();
-    }
+    checkAuthUser();
   }, []);
 
-  const checkUserAuth = async () => {
-    const isLoggedIn = await checkAuthUser();
-    if (!isLoggedIn && !window.location.pathname.includes("verify-account")) {
-      setIsAuthenticated(false);
-      setUser(INITIAL_USER);
-      localStorage.removeItem("currentUser");
-      localStorage.removeItem("cookieFallback");
-      console.log("navigating from 101");
-      navigate("/");
-    }
-  };
-
   useEffect(() => {
-    if (user.email !== "") {
+    if (user?.email) {
       if (user.is_pro) {
         setCurrentPlan("pro");
       } else {
@@ -126,6 +124,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     checkAuthUser,
     currentPlan,
   };
+
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 

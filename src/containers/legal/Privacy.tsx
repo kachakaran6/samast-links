@@ -4,7 +4,7 @@ const Privacy = () => {
   return (
     <div className="w-full min-h-screen bg-dark-1 text-gray-200">
       <div className="sm:p-5 px-5 flex flex-col w-full">
-        <LandingMenu isLoggedIn={false} />
+        <LandingMenu />
       </div>
       <div className="max-w-4xl mx-auto px-6 py-12">
         <h1 className="text-3xl md:text-4xl font-bold mb-6 text-gradient">Privacy Policy</h1>

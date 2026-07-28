@@ -57,7 +57,9 @@ export type IUpdateSocials = {
 export type IUser = {
   id: string;
   name: string;
+  username?: string;
   email: string;
+  bio?: string;
   imageUrl: string;
   status: boolean;
   emailVerification: boolean;

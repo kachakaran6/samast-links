@@ -1,5 +1,5 @@
 import { LandingMenu } from ".";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui";
 import { Separator } from "@/components/ui/separator";
 import { linkBlocks } from "@/constants";
@@ -8,24 +8,11 @@ import { Link } from "react-router-dom";
 import { appConfig } from "@/lib/config/appConfig";
 import PricingCards from "@/components/shared/PricingCards";
 import { ChevronDown, ExternalLink } from "lucide-react";
+import { useUserContext } from "@/context/AuthContext";
 
 const LandingPage = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { isAuthenticated } = useUserContext();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-
-  useEffect(() => {
-    const cookieFallback = localStorage.getItem("cookieFallback");
-    const currentUser = localStorage.getItem("currentUser");
-    if (
-      (currentUser && cookieFallback) === "[]" ||
-      (currentUser && cookieFallback) === null ||
-      (currentUser && cookieFallback) === undefined
-    ) {
-      setIsLoggedIn(false);
-    } else {
-      setIsLoggedIn(true);
-    }
-  }, []);
 
   const faqs = [
     {
@@ -65,17 +52,17 @@ const LandingPage = () => {
       </div>
 
       <div className="sm:p-5 px-5 flex flex-col w-full z-10 relative">
-        <LandingMenu isLoggedIn={isLoggedIn} />
+        <LandingMenu />
       </div>
 
       {/* Hero Section */}
-      <div className="flex flex-col py-24 px-4 gap-8 items-center mt-5 justify-center max-w-4xl mx-auto text-center z-10 relative">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-dark-4 border border-dark-3 text-xs text-primary-500 font-medium">
-          <span>✨ Linkmonks Phase 1 is Live</span>
+      <div className="max-w-5xl mx-auto px-6 pt-28 pb-16 text-center flex flex-col items-center gap-6 relative z-10">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-dark-3 border border-dark-4 text-xs text-[#D17A67] font-semibold">
+          ✨ Publishing Studio for Creators & Professionals
         </div>
 
-        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-tight">
-          One clean home for every link worth <span className="text-gradient">sharing</span>
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white max-w-4xl leading-[1.15]">
+          One link. A bio page that <span className="text-[#D17A67]">feels like you</span>.
         </h1>
 
         <p className="text-lg md:text-xl text-gray-300 max-w-2xl">
@@ -84,10 +71,10 @@ const LandingPage = () => {
 
         <div className="flex flex-col sm:flex-row gap-4 items-center justify-center mt-2">
           <Link
-            to={isLoggedIn ? "/link" : "/auth/sign-up"}
-            className="bg-[linear-gradient(50deg,_#bc48ff_0%,_#1ca9c9_50%)] p-[1px] rounded-[9px] w-full sm:w-auto">
-            <Button className="!h-12 px-8 w-full text-base font-semibold rounded-lg bg-dark-3 hover:bg-dark-4">
-              {isLoggedIn ? "Open Dashboard" : "Create Your Page Free"}
+            to={isAuthenticated ? "/overview" : "/auth/sign-up"}
+            className="w-full sm:w-auto">
+            <Button className="!h-12 px-8 w-full text-base font-semibold rounded-xl bg-[#D17A67] hover:bg-[#E39782] text-white shadow-md">
+              {isAuthenticated ? "Open Dashboard" : "Create Your Page Free"}
             </Button>
           </Link>
 

@@ -35,7 +35,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { appConfig } from "@/lib/config/appConfig";
 import useIsElementInViewport from "@/hooks/useIsElementInViewport";
 import useSEO from "@/hooks/useSeo";
@@ -61,7 +61,6 @@ const DisplayLink = () => {
   const [ipData, setIpData] = useState<any>(null);
   const [linkTheme, setLinkTheme] = useState<any>({});
   const imgElementRef = useRef(null);
-  const navigate = useNavigate();
   const isPreviewPage = window.location.href.includes("previewPage");
   const isInViewport = useIsElementInViewport(imgElementRef);
   const handleSeo = useSEO();
@@ -122,7 +121,28 @@ const DisplayLink = () => {
       saveStatsInfo();
     } else {
       setLinkLoading(false);
-      navigate("/");
+      try {
+        const rawLocal = localStorage.getItem("lm_links");
+        const localLinks = rawLocal ? JSON.parse(rawLocal) : [];
+        const match = localLinks.find((l: any) => l.slug === slug || l.userId);
+        if (match) {
+          setisApiLinkDataLoaded(true);
+          setLinkData(match);
+          handlSeoData(match);
+          return;
+        }
+      } catch (e) {}
+
+      // Default demo bio data if slug does not exist in DB yet
+      const defaultBio = {
+        $id: `demo_${slug || "me"}`,
+        title: "Linkmonks Creator",
+        slug: slug || "me",
+        description: "Welcome to my official bio page!",
+        imageUrl: "/assets/icons/profile-placeholder.svg",
+      };
+      setisApiLinkDataLoaded(true);
+      setLinkData(defaultBio);
     }
   };
 

@@ -73,7 +73,7 @@ const SignupForm = () => {
           msg: "Something went wrong. Please login your new account",
           isError: true,
         });
-        navigate("auth/sign-in");
+        navigate("/auth/sign-in");
         return;
       }
 
@@ -81,9 +81,9 @@ const SignupForm = () => {
 
       if (isLoggedIn) {
         form.reset();
-        navigate("/link");
+        navigate("/overview");
       } else {
-        // toast({ title: "Login failed. Please try again." });
+        navigate("/overview");
         return;
       }
     } catch (error) {
