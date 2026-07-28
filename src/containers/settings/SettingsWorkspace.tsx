@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useUserContext } from "@/context/AuthContext";
 import {
   Globe,
@@ -10,18 +10,21 @@ import {
 } from "lucide-react";
 import { getDynamicHost } from "@/lib/utils";
 import toast from "react-hot-toast";
+import { getUserLinks, updateLink, upgradeToPro } from "@/lib/supabase/api";
 
 const SettingsWorkspace = () => {
   const { user, currentPlan } = useUserContext();
 
   // Page Identity State
-  const [handle, setHandle] = useState(user?.username || "karan");
+  const [handle, setHandle] = useState(user?.username || "");
+  const [primaryLinkId, setPrimaryLinkId] = useState<string>("");
+  const [currentImageUrl, setCurrentImageUrl] = useState("");
   const currentHostPrefix = typeof window !== "undefined" && window.location?.host
     ? `${window.location.host}/`
     : "links.samast.pro/";
 
   // SEO State
-  const [seoTitle, setSeoTitle] = useState(`${user?.name || "Karan"} — Linkmonks Page`);
+  const [seoTitle, setSeoTitle] = useState(`${user?.name || ""} — Linkmonks Page`);
   const [seoDescription, setSeoDescription] = useState(
     "Explore all my latest projects, articles, and social channels in one clean link."
   );
@@ -29,29 +32,99 @@ const SettingsWorkspace = () => {
   // License Key State
   const [licenseKey, setLicenseKey] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
+  const [isSavingIdentity, setIsSavingIdentity] = useState(false);
+  const [isSavingSeo, setIsSavingSeo] = useState(false);
 
-  const handleSaveIdentity = () => {
+  // Load primary link data on mount
+  useEffect(() => {
+    async function loadPrimaryLink() {
+      try {
+        const userId = user?.id || (user as any)?.$id;
+        if (!userId) return;
+        const links = await getUserLinks(userId);
+        const arr = Array.isArray(links) ? links : [];
+        const primary = arr[0];
+        if (primary) {
+          const linkId = primary.id || primary.$id;
+          setPrimaryLinkId(linkId);
+          setHandle(primary.slug || user?.username || "");
+          setCurrentImageUrl(primary.imageUrl || "");
+          if (primary.seo_title) setSeoTitle(primary.seo_title);
+          if (primary.seo_description) setSeoDescription(primary.seo_description);
+        }
+      } catch (err) {
+        console.error("SettingsWorkspace loadPrimaryLink error:", err);
+      }
+    }
+    loadPrimaryLink();
+  }, [user]);
+
+  const handleSaveIdentity = async () => {
     if (handle.length < 3 || handle.length > 30) {
       toast.error("Handle must be between 3 and 30 characters");
       return;
     }
-    toast.success("Handle and page identity updated!");
+    setIsSavingIdentity(true);
+    try {
+      if (primaryLinkId) {
+        await updateLink({
+          linkId: primaryLinkId,
+          userId: user?.id || (user as any)?.$id || "",
+          title: user?.name || "My Bio Page",
+          slug: handle,
+          imageUrl: currentImageUrl,
+          imageId: "",
+        });
+        toast.success("Handle & page identity saved to database!");
+      } else {
+        toast.error("No primary link found. Please add a link block first.");
+      }
+    } catch (err) {
+      toast.error("Failed to save identity");
+    } finally {
+      setIsSavingIdentity(false);
+    }
   };
 
-  const handleSaveSeo = () => {
-    toast.success("SEO & social share settings saved!");
+  const handleSaveSeo = async () => {
+    setIsSavingSeo(true);
+    try {
+      if (primaryLinkId) {
+        await updateLink({
+          linkId: primaryLinkId,
+          userId: user?.id || (user as any)?.$id || "",
+          title: user?.name || "My Bio Page",
+          slug: handle,
+          imageUrl: currentImageUrl,
+          imageId: "",
+          seo_title: seoTitle as any,
+          seo_description: seoDescription as any,
+        });
+        toast.success("SEO & social share metadata saved to database!");
+      } else {
+        toast.error("No primary link found. Please add a link block first.");
+      }
+    } catch (err) {
+      toast.error("Failed to save SEO settings");
+    } finally {
+      setIsSavingSeo(false);
+    }
   };
 
-  const handleVerifyLicense = () => {
+  const handleVerifyLicense = async () => {
     if (!licenseKey.trim()) {
       toast.error("Please enter a valid Gumroad license key");
       return;
     }
     setIsVerifying(true);
-    setTimeout(() => {
+    try {
+      await upgradeToPro(user, licenseKey.trim());
+      toast.success("Pro license verified! Refresh the page to activate Pro features.");
+    } catch (err) {
+      toast.error("License verification failed. Please check your key.");
+    } finally {
       setIsVerifying(false);
-      toast.success("Pro license verified successfully!");
-    }, 1200);
+    }
   };
 
   return (
@@ -88,8 +161,9 @@ const SettingsWorkspace = () => {
           <div className="flex justify-end">
             <button
               onClick={handleSaveIdentity}
-              className="px-4 py-2 bg-accent hover:bg-accent-hover text-white text-xs font-bold rounded-xl shadow-sm">
-              Save Identity
+              disabled={isSavingIdentity}
+              className="px-4 py-2 bg-accent hover:bg-accent-hover text-white text-xs font-bold rounded-xl shadow-sm disabled:opacity-50">
+              {isSavingIdentity ? "Saving…" : "Save Identity"}
             </button>
           </div>
         </div>
@@ -138,8 +212,9 @@ const SettingsWorkspace = () => {
           <div className="flex justify-end">
             <button
               onClick={handleSaveSeo}
-              className="px-4 py-2 bg-accent hover:bg-accent-hover text-white text-xs font-bold rounded-xl shadow-sm">
-              Save SEO Settings
+              disabled={isSavingSeo}
+              className="px-4 py-2 bg-accent hover:bg-accent-hover text-white text-xs font-bold rounded-xl shadow-sm disabled:opacity-50">
+              {isSavingSeo ? "Saving…" : "Save SEO Settings"}
             </button>
           </div>
         </div>

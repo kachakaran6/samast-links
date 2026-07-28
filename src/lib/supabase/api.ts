@@ -749,22 +749,32 @@ export async function getUserLinks(userId: string) {
     const { data, error } = await supabase
       .from("links")
       .select("*")
-      .or(`userId.eq.${userId},userId.eq.user_${userId}`)
+      .eq("userId", userId)
       .order("created_at", { ascending: false });
 
-    if (error || !data || data.length === 0) {
-      // Fetch user profile to get exact handle/email
-      const dbUser = await getUserById(userId);
-      const userHandle = dbUser?.accountId || dbUser?.email?.split("@")[0] || "creator";
-      const created = await createLink({
-        userId: userId,
-        title: dbUser?.name || "My Bio Page",
-        slug: userHandle.toLowerCase(),
-        description: "Welcome to my official bio page!",
-      });
-      return mapDoc([created]);
+    if (!error && data && data.length > 0) {
+      return mapDoc(data);
     }
-    return mapDoc(data);
+
+    // Check local store before auto-creating
+    const localLinks = getLocalStore("links").filter((l) => l.userId === userId);
+    if (localLinks.length > 0) return mapDoc(localLinks);
+
+    // Only auto-create if we got a hard DB error (not just empty result)
+    if (error) {
+      return mapDoc([]);
+    }
+
+    // Empty result — auto-create a primary link for this user
+    const dbUser = await getUserById(userId);
+    const handle = dbUser?.accountId || dbUser?.email?.split("@")[0] || userId.substring(0, 8);
+    const created = await createLink({
+      userId: userId,
+      title: dbUser?.name || "My Bio Page",
+      slug: handle.toLowerCase().replace(/[^a-z0-9_-]/g, ""),
+      description: "Welcome to my official bio page!",
+    });
+    return mapDoc([created]);
   } catch (error) {
     const localLinks = getLocalStore("links").filter((l) => l.userId === userId);
     return mapDoc(localLinks);
@@ -830,20 +840,29 @@ export async function createLinkBlock(block: any, index: any, link_id: any) {
   }
 }
 
+// UUID pattern — any real DB id
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export async function manageLinkBlock(blocks: any, link_id: any) {
-  let blocksData: any = [];
-  await Promise.all(
-    blocks.map(async (ele: any, i: any) => {
-      const blockId = ele.$id || ele.id;
-      if (blockId && !blockId.startsWith("temp-") && !blockId.startsWith("block_") && !blockId.startsWith("demo_")) {
-        let updatedBlock = await updateLinkBlockById(ele, i, link_id);
-        blocksData.push(updatedBlock);
-      } else {
-        let createdBlock = await createLinkBlock(ele, i, link_id);
-        blocksData.push(createdBlock);
-      }
-    })
-  );
+  // Process sequentially to preserve order (Promise.all causes push() races)
+  const blocksData: any[] = [];
+  for (let i = 0; i < blocks.length; i++) {
+    const ele = blocks[i];
+    const blockId: string = ele.$id || ele.id || "";
+    const isExistingBlock =
+      blockId &&
+      !blockId.startsWith("temp-") &&
+      !blockId.startsWith("demo_") &&
+      (UUID_PATTERN.test(blockId) || (!blockId.startsWith("block_") && !blockId.startsWith("id_")));
+
+    if (isExistingBlock) {
+      const updatedBlock = await updateLinkBlockById(ele, i, link_id);
+      blocksData.push(updatedBlock);
+    } else {
+      const createdBlock = await createLinkBlock(ele, i, link_id);
+      blocksData.push(createdBlock);
+    }
+  }
 
   return handleBlocksData(blocksData);
 }

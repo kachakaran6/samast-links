@@ -251,17 +251,21 @@ const DisplayLink = () => {
       const res: any = await getLinkBlocksByLinkId(linkData?.$id || linkData?.id);
       let fetchedBlocks = Array.isArray(res) ? res : [];
 
+      // Fix: correct localStorage key is lm_link_blocks
       if (fetchedBlocks.length === 0) {
         try {
-          const rawLmBlocks = localStorage.getItem("lm_blocks");
+          const rawLmBlocks = localStorage.getItem("lm_link_blocks");
           if (rawLmBlocks) {
-            fetchedBlocks = JSON.parse(rawLmBlocks);
+            const parsed = JSON.parse(rawLmBlocks);
+            const linkId = linkData?.$id || linkData?.id;
+            fetchedBlocks = parsed.filter((b: any) => !linkId || b.link_id === linkId || !b.link_id);
           }
         } catch (e) {}
       }
 
-      // If still empty, provide rich demo blocks for a great public profile presentation
-      if (fetchedBlocks.length === 0) {
+      // Only show demo links if this is a demo/placeholder profile (no real link found)
+      const isDemoProfile = String(linkData?.$id || linkData?.id || "").startsWith("demo_");
+      if (fetchedBlocks.length === 0 && isDemoProfile) {
         fetchedBlocks = [
           {
             id: "demo_1",
