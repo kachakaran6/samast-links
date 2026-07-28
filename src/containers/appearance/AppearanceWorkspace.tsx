@@ -1,7 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useUserContext } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { PHASE1_THEMES, PRO_BUTTON_SHAPES } from "@/constants/themeConfig";
+import {
+  getUserLinks,
+  getSocialMediaByLinkId,
+  updateSocialMediaLinks,
+  updateUser,
+} from "@/lib/supabase/api";
 import {
   User,
   Palette,
@@ -23,8 +29,20 @@ const socialPlatforms = [
   { id: "instagram", name: "Instagram", placeholder: "https://instagram.com/username" },
   { id: "youtube", name: "YouTube", placeholder: "https://youtube.com/@channel" },
   { id: "linkedin", name: "LinkedIn", placeholder: "https://linkedin.com/in/username" },
+  { id: "telegram", name: "Telegram", placeholder: "https://t.me/username" },
   { id: "email", name: "Email Address", placeholder: "mailto:you@domain.com" },
 ];
+
+const platformKeyMap: Record<string, string> = {
+  "Twitter / X": "twitter",
+  "GitHub": "github",
+  "Instagram": "instagram",
+  "LinkedIn": "linked_in",
+  "Telegram": "telegram",
+  "Twitch": "twitch",
+  "Skype": "skype",
+  "TikTok": "tiktok",
+};
 
 const AppearanceWorkspace = () => {
   const { user, currentPlan } = useUserContext();
@@ -39,6 +57,8 @@ const AppearanceWorkspace = () => {
   const [avatarUrl, setAvatarUrl] = useState(
     user?.imageUrl || "/assets/icons/profile-placeholder.svg"
   );
+  const [userLinkId, setUserLinkId] = useState<string>("");
+  const [socialRowId, setSocialRowId] = useState<string>("");
 
   // Theme & button state
   const [selectedTheme, setSelectedTheme] = useState("paper-and-ink");
@@ -48,30 +68,107 @@ const AppearanceWorkspace = () => {
   // Social links state
   const [socialLinks, setSocialLinks] = useState<
     { platform: string; url: string }[]
-  >([
-    { platform: "Twitter / X", url: "https://x.com/karan" },
-    { platform: "GitHub", url: "https://github.com/kachakaran6" },
-  ]);
+  >([]);
   const [newPlatform, setNewPlatform] = useState("Twitter / X");
   const [newSocialUrl, setNewSocialUrl] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleSaveProfile = () => {
-    toast.success("Profile appearance updated!");
+  // Load User Link & Social Media from Supabase on mount
+  useEffect(() => {
+    async function loadSocials() {
+      try {
+        const userId = (user as any)?.id || (user as any)?.$id;
+        if (!userId) return;
+        const links = await getUserLinks(userId);
+        const activeLink = Array.isArray(links) ? links[0] : null;
+        if (activeLink) {
+          const linkId = activeLink.id || activeLink.$id;
+          setUserLinkId(linkId);
+          const socialsData = await getSocialMediaByLinkId(linkId);
+          if (socialsData) {
+            setSocialRowId(socialsData.id || socialsData.$id || "");
+            const list: { platform: string; url: string }[] = [];
+            if (socialsData.twitter) list.push({ platform: "Twitter / X", url: socialsData.twitter });
+            if (socialsData.github) list.push({ platform: "GitHub", url: socialsData.github });
+            if (socialsData.instagram) list.push({ platform: "Instagram", url: socialsData.instagram });
+            if (socialsData.linked_in) list.push({ platform: "LinkedIn", url: socialsData.linked_in });
+            if (socialsData.telegram) list.push({ platform: "Telegram", url: socialsData.telegram });
+            setSocialLinks(list);
+          }
+        }
+      } catch (err) {
+        console.error("loadSocials error:", err);
+      }
+    }
+    loadSocials();
+  }, [user]);
+
+  const syncSocialsToDb = async (updatedList: { platform: string; url: string }[]) => {
+    if (!userLinkId) return;
+    const payload: any = {
+      id: socialRowId || `soc_${userLinkId}`,
+      linkId: userLinkId,
+      twitter: "",
+      github: "",
+      instagram: "",
+      linked_in: "",
+      telegram: "",
+      twitch: "",
+      skype: "",
+      tiktok: "",
+    };
+
+    updatedList.forEach((item) => {
+      const col = platformKeyMap[item.platform];
+      if (col) {
+        payload[col] = item.url;
+      }
+    });
+
+    await updateSocialMediaLinks(payload);
   };
 
-  const handleAddSocial = () => {
-    if (!newSocialUrl.trim()) return;
-    setSocialLinks([
-      ...socialLinks,
+  const handleSaveProfile = async () => {
+    setIsSaving(true);
+    try {
+      const userId = (user as any)?.id || (user as any)?.$id;
+      if (userId) {
+        await updateUser({
+          userId: userId,
+          name: name,
+          imageUrl: avatarUrl,
+          file: [],
+        });
+      }
+      toast.success("Profile appearance saved to database!");
+    } catch (err) {
+      toast.error("Failed to update profile");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleAddSocial = async () => {
+    if (!newSocialUrl.trim()) {
+      toast.error("Please enter a valid social URL");
+      return;
+    }
+    const updated = [
+      ...socialLinks.filter((item) => item.platform !== newPlatform),
       { platform: newPlatform, url: newSocialUrl.trim() },
-    ]);
+    ];
+    setSocialLinks(updated);
     setNewSocialUrl("");
-    toast.success("Social link added");
+    await syncSocialsToDb(updated);
+    toast.success(`${newPlatform} added & saved to database!`);
   };
 
-  const handleRemoveSocial = (index: number) => {
-    setSocialLinks(socialLinks.filter((_, i) => i !== index));
-    toast.success("Social link removed");
+  const handleRemoveSocial = async (index: number) => {
+    const target = socialLinks[index];
+    const updated = socialLinks.filter((_, i) => i !== index);
+    setSocialLinks(updated);
+    await syncSocialsToDb(updated);
+    toast.success(`${target.platform} removed from database!`);
   };
 
   return (
@@ -208,9 +305,10 @@ const AppearanceWorkspace = () => {
               <div className="flex justify-end">
                 <button
                   onClick={handleSaveProfile}
+                  disabled={isSaving}
                   style={{ backgroundColor: accent.color }}
-                  className="px-5 py-2.5 text-white text-xs font-bold rounded-xl shadow-sm transition-all">
-                  Save Profile
+                  className="px-5 py-2.5 text-white text-xs font-bold rounded-xl shadow-sm transition-all disabled:opacity-50">
+                  {isSaving ? "Saving…" : "Save Profile"}
                 </button>
               </div>
             </div>
