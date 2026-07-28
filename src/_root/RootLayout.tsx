@@ -38,7 +38,7 @@ const RootLayout = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#181A18] text-[#F4F0E8] flex">
+    <div className="min-h-screen w-full bg-canvas text-ink flex transition-colors duration-200">
       {isLoading ? (
         <div className="flex-center w-full min-h-screen">
           <Loader height={40} width={40} />

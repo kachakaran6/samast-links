@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useUserContext } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 import { PHASE1_THEMES, PRO_BUTTON_SHAPES } from "@/constants/themeConfig";
 import {
   User,
@@ -11,6 +12,8 @@ import {
   Plus,
   Trash2,
   Sparkles,
+  Sun,
+  Moon,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -25,6 +28,7 @@ const socialPlatforms = [
 
 const AppearanceWorkspace = () => {
   const { user, currentPlan } = useUserContext();
+  const { theme, setTheme, accent, setAccent, accentPresets } = useTheme();
   const [activeSection, setActiveSection] = useState<
     "profile" | "theme" | "buttons" | "social"
   >("profile");
@@ -217,68 +221,136 @@ const AppearanceWorkspace = () => {
 
           {/* SECTION 2: THEMES */}
           {activeSection === "theme" && (
-            <div className="bg-[#222522] border border-[#3B403B] rounded-2xl p-6 flex flex-col gap-6">
-              <div>
-                <h3 className="text-base font-bold text-white">Curated Editorial Themes</h3>
-                <p className="text-xs text-[#B5BAB2] mt-0.5">
-                  Select a theme preset for your public link page.
-                </p>
+            <div className="flex flex-col gap-6">
+              {/* Studio Theme & Accent System */}
+              <div className="bg-surface border border-border rounded-2xl p-6 flex flex-col gap-5">
+                <div>
+                  <h3 className="text-base font-bold text-ink">Studio Theme Mode & Accent Colors</h3>
+                  <p className="text-xs text-ink-muted mt-0.5">
+                    Customize your publishing dashboard appearance and primary brand accent color.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Dark/Light Mode */}
+                  <div className="flex flex-col gap-2 bg-surface-muted p-4 rounded-xl border border-border">
+                    <span className="text-xs font-bold text-ink">Interface Theme</span>
+                    <div className="grid grid-cols-2 gap-2 mt-1">
+                      <button
+                        onClick={() => setTheme("dark")}
+                        className={`px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border transition-all ${
+                          theme === "dark"
+                            ? "bg-accent text-white border-accent shadow-sm"
+                            : "bg-surface text-ink-muted border-border hover:text-ink"
+                        }`}>
+                        <Moon className="w-4 h-4 text-indigo-400" />
+                        <span>Dark Mode</span>
+                      </button>
+                      <button
+                        onClick={() => setTheme("light")}
+                        className={`px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border transition-all ${
+                          theme === "light"
+                            ? "bg-accent text-white border-accent shadow-sm"
+                            : "bg-surface text-ink-muted border-border hover:text-ink"
+                        }`}>
+                        <Sun className="w-4 h-4 text-amber-400" />
+                        <span>Light Mode</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Accent Color Selection */}
+                  <div className="flex flex-col gap-2 bg-surface-muted p-4 rounded-xl border border-border">
+                    <span className="text-xs font-bold text-ink">Brand Accent Color</span>
+                    <div className="grid grid-cols-3 gap-2 mt-1">
+                      {accentPresets.map((preset) => (
+                        <button
+                          key={preset.id}
+                          onClick={() => {
+                            setAccent(preset);
+                            toast.success(`Accent color set to ${preset.name}`);
+                          }}
+                          className={`px-2 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1.5 border transition-all ${
+                            accent.id === preset.id
+                              ? "border-accent bg-surface text-ink shadow-sm"
+                              : "border-border bg-surface/50 text-ink-muted hover:text-ink"
+                          }`}>
+                          <span
+                            className="w-3 h-3 rounded-full shrink-0"
+                            style={{ backgroundColor: preset.color }}
+                          />
+                          <span className="truncate">{preset.name.split(" ")[0]}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {PHASE1_THEMES.map((t) => {
-                  const isSelected = selectedTheme === t.id;
-                  const isProLocked = t.isPro && currentPlan !== "pro";
+              {/* Bio Page Editorial Themes */}
+              <div className="bg-surface border border-border rounded-2xl p-6 flex flex-col gap-6">
+                <div>
+                  <h3 className="text-base font-bold text-ink">Bio Page Editorial Themes</h3>
+                  <p className="text-xs text-ink-muted mt-0.5">
+                    Select a theme preset for your public link page.
+                  </p>
+                </div>
 
-                  return (
-                    <div
-                      key={t.id}
-                      onClick={() => {
-                        if (isProLocked) {
-                          toast.error("Harbor theme requires a Pro License");
-                        } else {
-                          setSelectedTheme(t.id);
-                          toast.success(`Selected theme: ${t.name}`);
-                        }
-                      }}
-                      className={`p-4 rounded-2xl border cursor-pointer transition-all flex flex-col gap-3 relative ${
-                        isSelected
-                          ? "border-[#D17A67] bg-[#4A2A24]/30"
-                          : "border-[#3B403B] bg-[#181A18] hover:border-gray-500"
-                      }`}>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-white">{t.name}</span>
-                        {t.isPro && (
-                          <span className="text-[10px] font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-md border border-amber-400/30 flex items-center gap-1">
-                            <Sparkles className="w-3 h-3" /> PRO
-                          </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {PHASE1_THEMES.map((t) => {
+                    const isSelected = selectedTheme === t.id;
+                    const isProLocked = t.isPro && currentPlan !== "pro";
+
+                    return (
+                      <div
+                        key={t.id}
+                        onClick={() => {
+                          if (isProLocked) {
+                            toast.error("Harbor theme requires a Pro License");
+                          } else {
+                            setSelectedTheme(t.id);
+                            toast.success(`Selected theme: ${t.name}`);
+                          }
+                        }}
+                        className={`p-4 rounded-2xl border cursor-pointer transition-all flex flex-col gap-3 relative ${
+                          isSelected
+                            ? "border-accent bg-accent-soft"
+                            : "border-border bg-surface hover:border-accent/50"
+                        }`}>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-ink">{t.name}</span>
+                          {t.isPro && (
+                            <span className="text-[10px] font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-md border border-amber-400/30 flex items-center gap-1">
+                              <Sparkles className="w-3 h-3" /> PRO
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-ink-muted">{t.description}</p>
+
+                        {/* Mini Theme Swatch */}
+                        <div
+                          className="w-full h-16 rounded-xl p-3 flex flex-col justify-center gap-1.5 border"
+                          style={{
+                            backgroundColor: t.mainBg,
+                            color: t.mainColor,
+                            borderColor: t.accentColor,
+                          }}>
+                          <div
+                            className="w-full h-5 rounded-md text-[10px] font-bold flex items-center justify-center shadow-xs"
+                            style={{ backgroundColor: t.accentColor, color: "#fff" }}>
+                            Link Button
+                          </div>
+                        </div>
+
+                        {isSelected && (
+                          <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-accent text-white flex items-center justify-center">
+                            <Check className="w-3.5 h-3.5" />
+                          </div>
                         )}
                       </div>
-                      <p className="text-[11px] text-[#B5BAB2]">{t.description}</p>
-
-                      {/* Mini Theme Swatch */}
-                      <div
-                        className="w-full h-16 rounded-xl p-3 flex flex-col justify-center gap-1.5 border"
-                        style={{
-                          backgroundColor: t.mainBg,
-                          color: t.mainColor,
-                          borderColor: t.accentColor,
-                        }}>
-                        <div
-                          className="w-full h-5 rounded-md text-[10px] font-bold flex items-center justify-center shadow-xs"
-                          style={{ backgroundColor: t.accentColor, color: "#fff" }}>
-                          Link Button
-                        </div>
-                      </div>
-
-                      {isSelected && (
-                        <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-[#D17A67] text-white flex items-center justify-center">
-                          <Check className="w-3.5 h-3.5" />
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             </div>
           )}

@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/lib/react-query/queryKeys";
 import { createLink, manageLinkBlock, deleteLinkBlockById } from "@/lib/supabase/api";
 import { getDynamicPublicUrl } from "@/lib/utils";
+import { useTheme } from "@/context/ThemeContext";
 import {
   Plus,
   GripVertical,
@@ -71,6 +72,7 @@ class PreviewErrorBoundary extends Component<
 
 const LinksWorkspace = () => {
   const { user } = useUserContext();
+  const { accent } = useTheme();
   const queryClient = useQueryClient();
 
   const { data: linksData, isLoading: isLinksLoading } = useGetLinks(user?.id || "");
@@ -199,10 +201,10 @@ const LinksWorkspace = () => {
   return (
     <div className="w-full px-4 sm:px-6 md:px-8 py-6 md:py-8 flex flex-col gap-6">
       {/* Workspace Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#3B403B] pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-5">
         <div>
-          <h2 className="text-2xl font-bold text-white tracking-tight">Links Workspace</h2>
-          <p className="text-xs text-[#B5BAB2] mt-0.5">
+          <h2 className="text-2xl font-bold text-ink tracking-tight">Links Workspace</h2>
+          <p className="text-xs text-ink-muted mt-0.5">
             Add destination links and choose their exact order on your bio page.
           </p>
         </div>
@@ -212,20 +214,21 @@ const LinksWorkspace = () => {
             href={publicUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-3.5 py-2 bg-[#222522] hover:bg-[#2C302C] border border-[#3B403B] text-[#F4F0E8] text-xs font-bold rounded-xl transition-all">
+            className="flex items-center gap-1.5 px-3.5 py-2 bg-surface hover:bg-surface-muted border border-border text-ink text-xs font-bold rounded-xl transition-all">
             <span>View page</span>
-            <ExternalLink className="w-3.5 h-3.5 text-[#B5BAB2]" />
+            <ExternalLink className="w-3.5 h-3.5 text-ink-muted" />
           </a>
 
           <button
             onClick={handlePublish}
             disabled={isSaving}
+            style={hasUnpublishedChanges && !isSaving ? { backgroundColor: accent.color } : undefined}
             className={`px-4 py-2 text-xs font-bold rounded-xl transition-all shadow-sm ${
               isSaving
-                ? "bg-[#2C302C] text-amber-400 cursor-wait border border-[#3B403B]"
+                ? "bg-surface-muted text-amber-400 cursor-wait border border-border"
                 : hasUnpublishedChanges
-                ? "bg-[#D17A67] hover:bg-[#E39782] text-white cursor-pointer"
-                : "bg-[#2C302C] text-[#B5BAB2] border border-[#3B403B]"
+                ? "text-white cursor-pointer"
+                : "bg-surface-muted text-ink-muted border border-border"
             }`}>
             {isSaving ? "Saving…" : hasUnpublishedChanges ? "Publish changes" : "Published"}
           </button>
@@ -237,51 +240,53 @@ const LinksWorkspace = () => {
         {/* Column 1: Link Editor List (lg:col-span-7) */}
         <div className="lg:col-span-7 flex flex-col gap-4">
           {/* Add Link Action Bar */}
-          <div className="bg-[#222522] border border-[#3B403B] rounded-2xl p-4 flex flex-col gap-3">
+          <div className="bg-surface border border-border rounded-2xl p-4 flex flex-col gap-3">
             {!isAddingLink ? (
               <button
                 onClick={() => setIsAddingLink(true)}
-                className="w-full py-3 bg-[#D17A67] hover:bg-[#E39782] text-white text-xs font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-md">
+                style={{ backgroundColor: accent.color }}
+                className="w-full py-3 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-md">
                 <Plus className="w-4 h-4" />
                 <span>Add new link block</span>
               </button>
             ) : (
-              <div className="flex flex-col gap-3 bg-[#181A18] border border-[#3B403B] rounded-xl p-4">
-                <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+              <div className="flex flex-col gap-3 bg-canvas border border-border rounded-xl p-4">
+                <h4 className="text-xs font-bold text-ink uppercase tracking-wider">
                   New Link Block
                 </h4>
                 <div className="flex flex-col gap-2">
-                  <label className="text-[11px] font-semibold text-[#B5BAB2]">Title</label>
+                  <label className="text-[11px] font-semibold text-ink-muted">Title</label>
                   <input
                     type="text"
                     placeholder="e.g. My Latest YouTube Video"
                     value={newTitle}
                     onChange={(e) => setNewTitle(e.target.value)}
                     maxLength={80}
-                    className="w-full px-3 py-2 bg-[#222522] border border-[#3B403B] rounded-xl text-xs text-white placeholder:text-[#B5BAB2] focus:border-[#D17A67] outline-none"
+                    className="w-full px-3 py-2 bg-surface border border-border rounded-xl text-xs text-ink placeholder:text-ink-muted focus:border-accent outline-none"
                   />
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <label className="text-[11px] font-semibold text-[#B5BAB2]">Destination URL</label>
+                  <label className="text-[11px] font-semibold text-ink-muted">Destination URL</label>
                   <input
                     type="url"
                     placeholder="https://youtube.com/watch?v=..."
                     value={newUrl}
                     onChange={(e) => setNewUrl(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#222522] border border-[#3B403B] rounded-xl text-xs text-white placeholder:text-[#B5BAB2] focus:border-[#D17A67] outline-none"
+                    className="w-full px-3 py-2 bg-surface border border-border rounded-xl text-xs text-ink placeholder:text-ink-muted focus:border-accent outline-none"
                   />
                 </div>
 
                 <div className="flex items-center justify-end gap-2 pt-2">
                   <button
                     onClick={() => setIsAddingLink(false)}
-                    className="px-3 py-1.5 bg-[#2C302C] hover:bg-[#3B403B] text-xs font-bold text-[#B5BAB2] rounded-lg">
+                    className="px-3 py-1.5 bg-surface-muted hover:bg-border text-xs font-bold text-ink-muted rounded-lg">
                     Cancel
                   </button>
                   <button
                     onClick={handleAddLink}
-                    className="px-4 py-1.5 bg-[#D17A67] hover:bg-[#E39782] text-xs font-bold text-white rounded-lg shadow-sm">
+                    style={{ backgroundColor: accent.color }}
+                    className="px-4 py-1.5 text-xs font-bold text-white rounded-lg shadow-sm">
                     Save Link
                   </button>
                 </div>
@@ -291,11 +296,11 @@ const LinksWorkspace = () => {
 
           {/* Link Rows */}
           {isLinksLoading ? (
-            <div className="p-8 text-center text-xs text-[#B5BAB2]">Loading link blocks…</div>
+            <div className="p-8 text-center text-xs text-ink-muted">Loading link blocks…</div>
           ) : items.length === 0 ? (
-            <div className="p-8 border border-dashed border-[#3B403B] rounded-2xl text-center flex flex-col items-center gap-3">
-              <Globe className="w-8 h-8 text-[#B5BAB2]" />
-              <p className="text-xs text-[#B5BAB2]">No links created yet. Click "Add new link block" above.</p>
+            <div className="p-8 border border-dashed border-border rounded-2xl text-center flex flex-col items-center gap-3">
+              <Globe className="w-8 h-8 text-ink-muted" />
+              <p className="text-xs text-ink-muted">No links created yet. Click "Add new link block" above.</p>
             </div>
           ) : (
             <div className="flex flex-col gap-3">
@@ -304,18 +309,18 @@ const LinksWorkspace = () => {
                 return (
                   <div
                     key={item.$id || index}
-                    className="bg-[#222522] border border-[#3B403B] rounded-2xl overflow-hidden transition-all shadow-sm">
+                    className="bg-surface border border-border rounded-2xl overflow-hidden transition-all shadow-sm">
                     {/* Compact Card Row */}
                     <div className="p-4 flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3 truncate">
                         <button
                           title="Drag to reorder"
-                          className="cursor-grab text-[#B5BAB2] hover:text-white">
+                          className="cursor-grab text-ink-muted hover:text-ink">
                           <GripVertical className="w-4 h-4" />
                         </button>
 
                         <div className="flex flex-col truncate">
-                          <span className="text-xs font-bold text-white truncate">
+                          <span className="text-xs font-bold text-ink truncate">
                             {item.title || item.slug || "Untitled Link"}
                           </span>
                           <span className="text-[11px] font-mono text-[#B5BAB2] truncate">

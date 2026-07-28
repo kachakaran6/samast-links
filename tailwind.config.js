@@ -20,24 +20,25 @@ export default {
     },
     extend: {
       colors: {
-        // Paper & Ink Design System Tokens (Dark mode primary)
-        canvas: "#181A18",
-        surface: "#222522",
-        "surface-muted": "#2C302C",
-        ink: "#F4F0E8",
-        "ink-muted": "#B5BAB2",
-        border: "#3B403B",
-        accent: "#D17A67", // Oxide red
-        "accent-hover": "#E39782",
-        "accent-soft": "#4A2A24",
+        // Paper & Ink Design System Tokens (Dark & Light theme aware)
+        canvas: "var(--canvas-bg, #181A18)",
+        surface: "var(--surface-bg, #222522)",
+        "surface-muted": "var(--surface-muted, #2C302C)",
+        ink: "var(--text-main, #F4F0E8)",
+        "ink-muted": "var(--text-muted, #B5BAB2)",
+        border: "var(--border-color, #3B403B)",
+
+        accent: "var(--accent-color, #D17A67)",
+        "accent-hover": "var(--accent-hover, #E39782)",
+        "accent-soft": "var(--accent-soft, rgba(209, 122, 103, 0.18))",
         success: "#6EBB91",
         warning: "#D9A64E",
         destructive: "#F08A82",
 
-        // Backward compatibility mappings
-        primary: "#D17A67",
-        "primary-500": "#D17A67",
-        "primary-600": "#B86352",
+        // Dynamic Accent Mappings
+        primary: "var(--accent-color, #D17A67)",
+        "primary-500": "var(--accent-color, #D17A67)",
+        "primary-600": "var(--accent-hover, #E39782)",
         "secondary-500": "#D9A64E",
         "off-white": "#F4F0E8",
         red: "#F08A82",

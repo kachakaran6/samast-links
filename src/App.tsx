@@ -8,6 +8,7 @@ import { BlockProvider } from "./context/BlockContext";
 import { LinkProvider } from "./context/LinkContext";
 import { Loader } from "./components/shared";
 import { StatsProvider } from "./context/StatsContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import { AllPlanProvider } from "./context/PlanContext";
 import DisplayLink from "./containers/DisplayLink/DisplayLink";
 import VerifyLicenseKey from "./containers/subscription/VerifyLicenseKey";
@@ -42,12 +43,13 @@ const App = () => {
   }
 
   return (
-    <main className="flex h-full min-h-screen bg-[#181A18]">
-      <AllPlanProvider>
-        <AuthProvider>
-          <BlockProvider>
-            <LinkProvider>
-              <StatsProvider>
+    <ThemeProvider>
+      <main className="flex h-full min-h-screen bg-canvas text-ink transition-colors duration-200">
+        <AllPlanProvider>
+          <AuthProvider>
+            <BlockProvider>
+              <LinkProvider>
+                <StatsProvider>
                 <Suspense
                   fallback={
                     <div className="flex-center w-full h-full min-h-screen">
@@ -106,6 +108,7 @@ const App = () => {
         </AuthProvider>
       </AllPlanProvider>
     </main>
+  </ThemeProvider>
   );
 };
 

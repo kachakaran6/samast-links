@@ -4,6 +4,31 @@
 @tailwind components;
 @tailwind utilities;
 
+:root,
+html.dark,
+.dark {
+  --canvas-bg: #181A18;
+  --surface-bg: #222522;
+  --surface-muted: #2C302C;
+  --border-color: #3B403B;
+  --text-main: #F4F0E8;
+  --text-muted: #B5BAB2;
+
+  --accent-color: #D17A67;
+  --accent-hover: #E39782;
+  --accent-soft: rgba(209, 122, 103, 0.18);
+}
+
+html.light,
+.light {
+  --canvas-bg: #F8F9FA;
+  --surface-bg: #FFFFFF;
+  --surface-muted: #F1F5F9;
+  --border-color: #E2E8F0;
+  --text-main: #0F172A;
+  --text-muted: #64748B;
+}
+
 @layer base {
   * {
     @apply box-border list-none p-0 m-0 !scroll-smooth;
@@ -11,7 +36,7 @@
     font-family: "Manrope", sans-serif;
   }
   body {
-    @apply bg-dark-1 text-light-1 min-h-screen antialiased;
+    @apply bg-canvas text-ink min-h-screen antialiased transition-colors duration-200;
   }
   body .display-link {
     @apply bg-white text-dark-2;
